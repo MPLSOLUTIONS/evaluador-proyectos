@@ -44,7 +44,8 @@ function buildFCF() {
   }
 
   // Guardar en estado global
-  Estado.lastFCF = { rows, inv, resid, kt, tasa, tax, depPorAno, anos, deuda, prestamo, ing, cost };
+  const yr0FCL = -(inv + kt) + (Estado.financM === 'mixto' ? prestamo : 0);
+  Estado.lastFCF = { rows, inv, resid, kt, tasa, tax, depPorAno, anos, deuda, prestamo, ing, cost, yr0FCL };
 
   // ── Renderizar tabla ──
   renderFCFTable(rows, inv, kt, resid, prestamo, anos);
@@ -176,12 +177,18 @@ function renderFCFChart(rows, anos, yr0FCL) {
   const fclAcum = rows.map(r => { acum += r.fcl; return acum; });
 
   if (chartFCF) {
-    chartFCF.data.labels             = labels;
-    chartFCF.data.datasets[0].data   = ebitda;
-    chartFCF.data.datasets[1].data   = fcn;
-    chartFCF.data.datasets[2].data   = fclAcum;
-    chartFCF.update();
-    return;
+    // Si el gráfico ya tiene 3 datasets, solo actualizar datos
+    if (chartFCF.data.datasets.length === 3) {
+      chartFCF.data.labels           = labels;
+      chartFCF.data.datasets[0].data = ebitda;
+      chartFCF.data.datasets[1].data = fcn;
+      chartFCF.data.datasets[2].data = fclAcum;
+      chartFCF.update();
+      return;
+    }
+    // Si tiene menos datasets (versión antigua), destruir y recrear
+    chartFCF.destroy();
+    chartFCF = null;
   }
 
   const ctx = document.getElementById('chart-fcf')?.getContext('2d');
