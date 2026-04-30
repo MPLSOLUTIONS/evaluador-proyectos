@@ -151,7 +151,7 @@ Cada archivo tiene una responsabilidad única:
 
 | Herramienta | Repositorio |
 |---|---|
-| Optimizador de Corte 1D | [dob97abc-eng.github.io/optimizador-corte](https://dob97abc-eng.github.io/optimizador-corte/) |
+| Optimizador de Corte 1D | [mplsolutions.github.io/optimizador-corte](https://mplsolutions.github.io/optimizador-corte/) |
 | Portal principal | _próximamente_ |
 
 ---
