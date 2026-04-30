@@ -93,7 +93,7 @@ function buildResults() {
 function renderSens() {
   if (!Estado.lastFCF) return;
 
-  const { inv, kt, tasa, anos, ing, cost, tax, depA, deuda, resid, prestamo } = Estado.lastFCF;
+  const { inv, kt, tasa, anos, ing, cost, tax, depPorAno, deuda, resid, prestamo } = Estado.lastFCF;
   const variable = document.getElementById('sens-var').value;
   const rango    = +document.getElementById('sens-rango').value;
   const steps    = [-rango, -rango / 2, 0, rango / 2, rango];
