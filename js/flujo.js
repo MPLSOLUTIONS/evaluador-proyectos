@@ -50,7 +50,7 @@ function buildFCF() {
   renderFCFTable(rows, inv, kt, resid, prestamo, anos);
 
   // ── Renderizar gráfico ──
-  renderFCFChart(rows, anos);
+  renderFCFChart(rows, anos, yr0FCL);
 }
 
 /* ── Tabla de flujo de caja ── */
@@ -165,16 +165,21 @@ function renderFCFTable(rows, inv, kt, resid, prestamo, anos) {
   table.innerHTML = thead + `<tbody>${html}</tbody>`;
 }
 
-/* ── Gráfico EBITDA vs FCN ── */
-function renderFCFChart(rows, anos) {
+/* ── Gráfico EBITDA vs FCN vs FCL acumulado ── */
+function renderFCFChart(rows, anos, yr0FCL) {
   const labels  = Array.from({ length: anos }, (_, i) => 'Año ' + (i + 1));
   const ebitda  = rows.map(r => r.ebitda);
   const fcn     = rows.map(r => r.fcn);
 
+  // FCL acumulado desde Año 0
+  let acum = yr0FCL;
+  const fclAcum = rows.map(r => { acum += r.fcl; return acum; });
+
   if (chartFCF) {
-    chartFCF.data.labels                   = labels;
-    chartFCF.data.datasets[0].data         = ebitda;
-    chartFCF.data.datasets[1].data         = fcn;
+    chartFCF.data.labels             = labels;
+    chartFCF.data.datasets[0].data   = ebitda;
+    chartFCF.data.datasets[1].data   = fcn;
+    chartFCF.data.datasets[2].data   = fclAcum;
     chartFCF.update();
     return;
   }
@@ -194,6 +199,7 @@ function renderFCFChart(rows, anos) {
           borderColor: 'rgba(201,168,76,0.9)',
           borderWidth: 2,
           borderRadius: 4,
+          yAxisID: 'y',
         },
         {
           type: 'line',
@@ -203,9 +209,24 @@ function renderFCFChart(rows, anos) {
           backgroundColor: 'rgba(26,107,48,0.08)',
           borderWidth: 2.5,
           tension: 0.3,
-          fill: true,
+          fill: false,
           pointRadius: 5,
           pointBackgroundColor: 'rgba(26,107,48,0.9)',
+          yAxisID: 'y',
+        },
+        {
+          type: 'line',
+          label: 'FCL Acumulado',
+          data: fclAcum,
+          borderColor: 'rgba(100,149,237,0.9)',
+          backgroundColor: 'rgba(100,149,237,0.08)',
+          borderWidth: 2.5,
+          tension: 0.4,
+          fill: false,
+          pointRadius: 5,
+          pointBackgroundColor: 'rgba(100,149,237,0.9)',
+          borderDash: [6, 3],
+          yAxisID: 'y',
         },
       ],
     },
@@ -213,11 +234,36 @@ function renderFCFChart(rows, anos) {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: { position: 'top', labels: { font: { family: 'DM Sans', size: 11 }, padding: 14 } },
-        tooltip: { callbacks: { label: c => fmt(c.raw) } },
+        legend: {
+          position: 'top',
+          labels: { font: { family: 'DM Sans', size: 11 }, padding: 14 },
+        },
+        tooltip: {
+          callbacks: {
+            label: c => `${c.dataset.label}: ${fmt(c.raw)}`,
+            afterBody: (items) => {
+              // Indicar si FCL acumulado cruza cero (punto de payback)
+              const fclItem = items.find(i => i.dataset.label === 'FCL Acumulado');
+              if (fclItem && fclItem.raw >= 0) {
+                const prev = fclItem.dataset.data[fclItem.dataIndex - 1];
+                if (prev !== undefined && prev < 0) return ['✅ Punto de recuperación'];
+              }
+              return [];
+            }
+          },
+        },
+        // Línea de referencia en cero para FCL acumulado
+        annotation: null,
       },
       scales: {
-        y: { ticks: { callback: v => fmt(v) }, grid: { color: 'rgba(0,0,0,0.05)' } },
+        y: {
+          ticks: { callback: v => fmt(v) },
+          grid: { color: 'rgba(0,0,0,0.05)' },
+          // Línea en cero destacada
+          afterDataLimits: axis => {
+            if (axis.max < 0) axis.max = axis.max * 0.9;
+          },
+        },
         x: { grid: { display: false } },
       },
     },
