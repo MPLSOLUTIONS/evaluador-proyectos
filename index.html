@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Evaluador de Proyectos · MPL Solutions</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="css/styles.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <a class="logo" href="../index.html">
+      <div class="logo-icon">📊</div>
+      <div>
+        <span class="logo-name">Portal Empresarial</span>
+        <span class="logo-sub">MPL Solutions</span>
+      </div>
+    </a>
+    <a class="back-btn" href="../index.html">← Portal</a>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div>
+      <div class="hero-badge">📐 Evaluador financiero profesional</div>
+      <h1>Evaluador de <span>Proyectos</span> de Inversión</h1>
+      <p>VAN · TIR · EBITDA · Flujo de Caja con Año 0 · Financiamiento · Depreciaciones · Capital de Trabajo · Sensibilidad</p>
+    </div>
+    <div>
+      <p style="font-size:0.72rem;color:var(--gold);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;font-weight:600">Moneda del proyecto</p>
+      <div class="hero-moneda">
+        <button class="active" onclick="setMoneda('CLP', this)">$ Millones CLP</button>
+        <button onclick="setMoneda('UF', this)">Miles UF</button>
+      </div>
+    </div>
+  </div>
+</section>
+<div class="divider"></div>
+
+<!-- TABS -->
+<div class="tabs-nav">
+  <div class="tabs-nav-inner">
+    <button class="tab-btn active" onclick="goTab(0)"><span class="tab-num">1</span> Parámetros</button>
+    <button class="tab-btn" onclick="goTab(1)"><span class="tab-num">2</span> Ventas y Costos</button>
+    <button class="tab-btn" onclick="goTab(2)"><span class="tab-num">3</span> Flujo de Caja</button>
+    <button class="tab-btn" onclick="goTab(3)"><span class="tab-num">4</span> Resultados</button>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- ═══════════ TAB 1: PARÁMETROS ═══════════ -->
+<div class="tab-panel active" id="tab-0">
+
+  <div class="card">
+    <div class="card-header"><h2>🏭 Identificación del proyecto</h2></div>
+    <div class="card-body">
+      <div class="card-grid">
+        <div class="field">
+          <label>Nombre del proyecto</label>
+          <input type="text" id="p-nombre" value="Nueva línea de producción madera"/>
+        </div>
+        <div class="field">
+          <label>Tipo de proyecto</label>
+          <select id="p-tipo">
+            <option>Nueva línea de producción</option>
+            <option>Compra de maquinaria</option>
+            <option>Nuevo negocio</option>
+            <option>Expansión</option>
+            <option>Otro</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Horizonte de evaluación</label>
+          <div style="display:flex;align-items:center;gap:12px;margin-top:4px">
+            <input type="range" id="p-anos" min="1" max="10" value="5"
+                   oninput="onAnosChange()" style="flex:1;accent-color:var(--gold)"/>
+            <span id="p-anos-label"
+                  style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;
+                         color:var(--gold);min-width:68px">5 años</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h2>💰 Inversión inicial</h2></div>
+    <div class="card-body">
+      <div class="field-row">
+        <div class="field">
+          <label>Monto inversión inicial <span class="munit">MM$</span></label>
+          <input type="number" id="p-inversion" value="500" min="0" step="0.1"/>
+          <p class="hint">Activos fijos, instalaciones, equipamiento</p>
+        </div>
+        <div class="field">
+          <label>Valor residual al final del proyecto <span class="munit">MM$</span></label>
+          <input type="number" id="p-residual" value="50" min="0" step="0.1"/>
+          <p class="hint">Estimación de venta de activos al término</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2>🏦 Financiamiento</h2>
+      <div class="toggle-row" id="financ-toggle">
+        <button class="active" onclick="setFinanc('propio', this)">Solo capital propio</button>
+        <button onclick="setFinanc('mixto', this)">Con préstamo</button>
+      </div>
+    </div>
+    <div class="card-body">
+      <div id="financ-propio-msg">
+        <p style="font-size:0.85rem;color:var(--gray);font-weight:300">
+          El proyecto se financia 100% con capital propio. No se incluyen pagos de deuda en el flujo de caja.
+        </p>
+      </div>
+      <div id="financ-mixto-box" class="hidden">
+        <div class="field-row-3">
+          <div class="field">
+            <label>Monto del préstamo <span class="munit">MM$</span></label>
+            <input type="number" id="f-monto" value="300" min="0" step="0.1" oninput="calcFinanc()"/>
+          </div>
+          <div class="field">
+            <label>Tasa anual del préstamo (%)</label>
+            <input type="number" id="f-tasa" value="6.5" min="0" step="0.1" oninput="calcFinanc()"/>
+          </div>
+          <div class="field">
+            <label>Plazo del préstamo (años)</label>
+            <input type="number" id="f-plazo" value="5" min="1" max="20" oninput="calcFinanc()"/>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;padding:14px 18px;background:var(--navy);border-radius:var(--radius-sm);margin-top:4px">
+          <span style="font-size:0.75rem;color:var(--gold);text-transform:uppercase;letter-spacing:0.05em;font-weight:600">Cuota anual fija (sistema francés)</span>
+          <span id="f-cuota-label" style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--white)">—</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2>📉 Depreciaciones</h2>
+      <button class="btn-sm" onclick="addDep()">+ Agregar activo</button>
+    </div>
+    <div class="card-body">
+      <div id="dep-list"></div>
+      <div style="margin-top:14px;padding:12px 16px;background:var(--gold-pale);border-radius:var(--radius-sm);display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:0.78rem;font-weight:700;color:var(--amber);text-transform:uppercase;letter-spacing:0.04em">Depreciación anual total</span>
+        <span id="dep-total-lbl" style="font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:var(--navy)">—</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h2>🔄 Capital de trabajo</h2></div>
+    <div class="card-body">
+      <div class="field-row">
+        <div class="field">
+          <label>Monto capital de trabajo <span class="munit">MM$</span></label>
+          <input type="number" id="p-kt" value="30" min="0" step="0.1"/>
+          <p class="hint">Requerimiento inicial de caja operativa</p>
+        </div>
+        <div class="field">
+          <label>Recuperación al final del proyecto</label>
+          <div class="toggle-row" id="kt-toggle" style="margin-top:6px">
+            <button class="active" onclick="setKTR('si', this)">Sí se recupera</button>
+            <button onclick="setKTR('no', this)">No se recupera</button>
+          </div>
+          <p class="hint">¿Se recupera el capital de trabajo al término?</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2>📊 Tasa de descuento</h2>
+      <div class="toggle-row" id="tasa-toggle">
+        <button class="active" onclick="setTasaM('manual', this)">Manual</button>
+        <button onclick="setTasaM('wacc', this)">Calcular WACC</button>
+      </div>
+    </div>
+    <div class="card-body">
+      <div id="tasa-manual-box">
+        <div class="field" style="max-width:220px">
+          <label>Tasa de descuento (%)</label>
+          <input type="number" id="p-tasa" value="12" min="0" step="0.1"/>
+        </div>
+      </div>
+      <div id="tasa-wacc-box" class="hidden">
+        <div class="wacc-box">
+          <div class="field-row">
+            <div class="field"><label>% Deuda</label><input type="number" id="w-dpct" value="40" min="0" max="100" oninput="calcWACC()"/></div>
+            <div class="field"><label>Costo deuda (%)</label><input type="number" id="w-dcost" value="6.5" min="0" step="0.1" oninput="calcWACC()"/></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>% Patrimonio</label><input type="number" id="w-ppct" value="60" min="0" max="100" oninput="calcWACC()"/></div>
+            <div class="field"><label>Costo patrimonio (%)</label><input type="number" id="w-pcost" value="15" min="0" step="0.1" oninput="calcWACC()"/></div>
+          </div>
+          <div class="field" style="max-width:200px">
+            <label>Tasa impuesto aplicada (%)</label>
+            <input type="number" id="w-tax" value="27" min="0" oninput="calcWACC()"/>
+          </div>
+          <div class="wacc-result">
+            <span style="font-size:0.78rem;color:var(--gray);font-weight:500">WACC calculado</span>
+            <span class="wacc-val" id="wacc-val">—</span>
+          </div>
+        </div>
+      </div>
+      <hr class="section-sep"/>
+      <div class="field" style="max-width:220px">
+        <label>Tasa impuesto a la renta (%)</label>
+        <input type="number" id="p-impuesto" value="27" min="0" step="0.1"/>
+        <p class="hint">Se usa para calcular el impuesto sobre EBT</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-btn-row">
+    <button class="btn-primary" onclick="goTab(1)">Siguiente: Ventas y Costos →</button>
+  </div>
+</div>
+
+<!-- ═══════════ TAB 2: VENTAS Y COSTOS ═══════════ -->
+<div class="tab-panel" id="tab-1">
+
+  <div class="card">
+    <div class="card-header">
+      <h2>📈 Ingresos por ventas</h2>
+      <button class="btn-sm" onclick="addVentaRow()">+ Línea de ingreso</button>
+    </div>
+    <div class="card-body">
+      <div class="table-scroll">
+        <table class="years-table">
+          <thead id="v-thead"></thead>
+          <tbody id="v-tbody"></tbody>
+          <tfoot id="v-tfoot"></tfoot>
+        </table>
+      </div>
+      <div class="chart-wrap"><canvas id="chart-ventas"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2>📉 Costos operacionales</h2>
+      <button class="btn-sm" onclick="addCostoRow()">+ Línea de costo</button>
+    </div>
+    <div class="card-body">
+      <div class="table-scroll">
+        <table class="years-table">
+          <thead id="c-thead"></thead>
+          <tbody id="c-tbody"></tbody>
+          <tfoot id="c-tfoot"></tfoot>
+        </table>
+      </div>
+      <div class="chart-wrap"><canvas id="chart-costos"></canvas></div>
+    </div>
+  </div>
+
+  <div class="nav-btn-row" style="justify-content:space-between">
+    <button class="btn-sm" onclick="goTab(0)">← Parámetros</button>
+    <button class="btn-primary" onclick="buildFCF(); goTab(2)">Siguiente: Flujo de Caja →</button>
+  </div>
+</div>
+
+<!-- ═══════════ TAB 3: FLUJO DE CAJA ═══════════ -->
+<div class="tab-panel" id="tab-2">
+
+  <div class="card">
+    <div class="card-header"><h2>💹 Estado de resultados y flujo de caja completo</h2></div>
+    <div class="card-body">
+      <div class="table-scroll">
+        <table class="fcf-table" id="fcf-table"></table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h2>📊 EBITDA vs Flujo de Caja Neto por año</h2></div>
+    <div class="card-body">
+      <div class="chart-wrap"><canvas id="chart-fcf"></canvas></div>
+    </div>
+  </div>
+
+  <div class="nav-btn-row" style="justify-content:space-between">
+    <button class="btn-sm" onclick="goTab(1)">← Ventas y Costos</button>
+    <button class="btn-primary" onclick="buildResults(); goTab(3)">Ver Resultados →</button>
+  </div>
+</div>
+
+<!-- ═══════════ TAB 4: RESULTADOS ═══════════ -->
+<div class="tab-panel" id="tab-3">
+
+  <div id="res-placeholder" class="card">
+    <div class="card-body" style="text-align:center;padding:52px">
+      <p style="font-size:2.5rem;margin-bottom:12px">📋</p>
+      <p style="color:var(--gray);font-size:0.9rem;margin-bottom:20px">
+        Completa los parámetros y avanza por las pestañas para generar el análisis.
+      </p>
+      <button class="btn-primary" onclick="buildFCF(); buildResults()">Calcular ahora →</button>
+    </div>
+  </div>
+
+  <div id="res-content" class="hidden">
+
+    <div class="viability" id="viability-bar">
+      <div class="v-icon" id="v-icon">📋</div>
+      <div class="v-text">
+        <h3 id="v-titulo">—</h3>
+        <p id="v-desc">—</p>
+      </div>
+      <span class="v-badge badge-viable" id="v-badge">—</span>
+    </div>
+
+    <div class="metrics-grid" id="kpi-grid"></div>
+
+    <div class="card">
+      <div class="card-header">
+        <h2>🎯 Análisis de sensibilidad</h2>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <select id="sens-var" onchange="renderSens()"
+                  style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;
+                         font-family:'DM Sans',sans-serif;font-size:0.82rem;color:var(--navy)">
+            <option value="ingresos">Variable: Ingresos</option>
+            <option value="costos">Variable: Costos operacionales</option>
+            <option value="inversion">Variable: Inversión inicial</option>
+            <option value="tasa">Variable: Tasa de descuento</option>
+          </select>
+          <select id="sens-rango" onchange="renderSens()"
+                  style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;
+                         font-family:'DM Sans',sans-serif;font-size:0.82rem;color:var(--navy)">
+            <option value="10">Rango ±10%</option>
+            <option value="20" selected>Rango ±20%</option>
+            <option value="30">Rango ±30%</option>
+            <option value="50">Rango ±50%</option>
+          </select>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="table-scroll">
+          <table class="sens-table">
+            <thead>
+              <tr>
+                <th>Variación</th>
+                <th>VAN</th>
+                <th>TIR</th>
+                <th>Payback</th>
+                <th>Viabilidad</th>
+              </tr>
+            </thead>
+            <tbody id="sens-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div style="margin-top:12px">
+    <button class="btn-sm" onclick="goTab(2)">← Flujo de Caja</button>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<!-- JS: orden importante -->
+<script src="js/estado.js"></script>
+<script src="js/parametros.js"></script>
+<script src="js/ventas.js"></script>
+<script src="js/flujo.js"></script>
+<script src="js/resultados.js"></script>
+<script>
+  // Inicialización al cargar
+  initParametros();
+  renderVentas();
+  renderCostos();
+</script>
+</body>
+</html>
