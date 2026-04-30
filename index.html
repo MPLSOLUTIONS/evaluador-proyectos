@@ -377,7 +377,6 @@
 <script src="js/flujo.js"></script>
 <script src="js/resultados.js"></script>
 <script>
-  // Sobreescribir goTab para inicializar pestaña al abrirla por primera vez
   const _tabInit = { 0: false, 1: false, 2: false, 3: false };
 
   function goTab(n) {
@@ -385,25 +384,28 @@
     document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i === n));
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    // Inicializar pestaña la primera vez que se abre
-    if (!_tabInit[n]) {
-      _tabInit[n] = true;
-      if (n === 1) { renderVentas(); renderCostos(); }
-      if (n === 2) { buildFCF(); }
-      if (n === 3) { buildFCF(); buildResults(); }
-    } else {
-      // Si ya fue inicializada, solo actualizar gráficos si canvas estuvo oculto
-      if (n === 1) {
-        const totV = getColTotals(Estado.ventaRows);
-        const totC = getColTotals(Estado.costoRows);
-        updateChartVentas(totV);
-        updateChartCostos(totC);
-      }
-      if (n === 2) buildFCF();
+    // Tab 1: inicializar tablas la primera vez
+    if (n === 1 && !_tabInit[1]) {
+      _tabInit[1] = true;
+      renderVentas();
+      renderCostos();
+      return;
     }
+    // Tab 1: refrescar gráficos si ya fue inicializada (canvas oculto)
+    if (n === 1 && _tabInit[1]) {
+      updateChartVentas(getColTotals(Estado.ventaRows));
+      updateChartCostos(getColTotals(Estado.costoRows));
+      return;
+    }
+    // Tab 2: siempre recalcular FCF al entrar
+    if (n === 2) {
+      buildFCF();
+      return;
+    }
+    // Tab 3: buildResults() es llamado externamente por el botón
+    // goTab solo cambia la pestaña, no llama buildResults()
   }
 
-  // Inicializar al cargar: solo pestaña 1 (parámetros)
   document.addEventListener('DOMContentLoaded', function () {
     initParametros();
     _tabInit[0] = true;
