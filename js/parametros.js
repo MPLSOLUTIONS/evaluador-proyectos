@@ -1,5 +1,9 @@
 /* ═══════════════════════════════════════
    parametros.js — Pestaña 1
+   Activos: valor compra + vida útil + valor residual
+   Inversión inicial = suma de valores de compra
+   Depreciación por año = (valor - residual) / vida útil
+   Depreciación solo durante años de vida útil del activo
 ═══════════════════════════════════════ */
 
 /* ── Moneda ── */
@@ -8,7 +12,7 @@ function setMoneda(m, btn) {
   document.querySelectorAll('.hero-moneda button').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   refreshUnits();
-  recalcDep();
+  recalcActivos();
 }
 
 /* ── Slider de años ── */
@@ -87,97 +91,201 @@ function setKTR(v, btn) {
   btn.classList.add('active');
 }
 
-/* ── Depreciaciones ── */
-let depCnt = 0;
-const DEP_VIDAS = {
-  'Maquinaria industrial': 10,
-  'Vehículos / equipos': 5,
-  'Infraestructura': 25,
-  'Equipos TI': 3,
-  'Manual (definir)': null,
+/* ══════════════════════════════════════════
+   ACTIVOS — corazón del módulo
+   Cada activo tiene:
+     nm      : nombre
+     val     : valor de compra (= inversión)
+     resid   : valor residual al final de vida útil
+     vida    : vida útil en años
+     tipo    : tipo seleccionado
+   Depreciación anual = (val - resid) / vida
+   Solo aplica durante años 1..vida
+   Residual se recupera al final del PROYECTO
+══════════════════════════════════════════ */
+
+let activoCnt = 0;
+
+const TIPOS_ACTIVO = {
+  'Maquinaria industrial':  { vida: 10, residPct: 10 },
+  'Vehículos / equipos':    { vida: 5,  residPct: 15 },
+  'Infraestructura':        { vida: 25, residPct: 20 },
+  'Equipos TI':             { vida: 3,  residPct: 5  },
+  'Manual (definir)':       { vida: 10, residPct: 0  },
 };
 
-function addDep(nm = 'Maquinaria industrial', val = 200, vida = 10) {
-  const id = ++depCnt;
-  const list = document.getElementById('dep-list');
-  const div = document.createElement('div');
-  div.className = 'dep-item';
-  div.id = 'dep-item-' + id;
+function addActivo(nm = 'Maquinaria industrial', val = 300, resid = null, vida = null) {
+  const id = ++activoCnt;
+  const tipo = TIPOS_ACTIVO[nm] || TIPOS_ACTIVO['Manual (definir)'];
+  const vidaDefault = vida ?? tipo.vida;
+  const residDefault = resid ?? +(val * tipo.residPct / 100).toFixed(2);
 
-  const opts = Object.entries(DEP_VIDAS).map(([k, v]) =>
-    `<option value="${v ?? ''}" ${k === nm ? 'selected' : ''}>${k}</option>`
+  const list = document.getElementById('activos-list');
+  const div = document.createElement('div');
+  div.className = 'activo-item';
+  div.id = 'activo-' + id;
+
+  const opts = Object.keys(TIPOS_ACTIVO).map(k =>
+    `<option ${k === nm ? 'selected' : ''}>${k}</option>`
   ).join('');
 
   div.innerHTML = `
-    <div class="field" style="margin:0">
-      <label>Activo / Descripción</label>
-      <input type="text" value="${nm}" oninput="recalcDep()"/>
+    <div style="grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+      <input type="text" id="activo-nm-${id}" value="${nm}"
+        style="font-weight:600;font-size:0.88rem;border:none;background:transparent;
+               color:var(--navy);font-family:'DM Sans',sans-serif;width:100%"
+        oninput="recalcActivos()"/>
+      <button class="btn-sm btn-danger" onclick="removeActivo(${id})" style="margin-left:8px;flex-shrink:0">✕</button>
     </div>
+
     <div class="field" style="margin:0">
-      <label>Valor <span class="munit">${unit()}</span></label>
-      <input type="number" class="dep-val" value="${val}" min="0" step="0.1" oninput="recalcDep()"/>
-    </div>
-    <div class="field" style="margin:0">
-      <label>Tipo / Vida útil (años)</label>
-      <select id="dep-sel-${id}" onchange="onDepSelChange(${id})">
+      <label>Tipo de activo</label>
+      <select id="activo-tipo-${id}" onchange="onTipoChange(${id})">
         ${opts}
       </select>
-      <input type="number" id="dep-vida-${id}" class="dep-vida" value="${vida}" min="1" max="50"
-             style="margin-top:4px" oninput="recalcDep()"/>
     </div>
+
+    <div class="field" style="margin:0">
+      <label>Valor de compra <span class="munit">${unit()}</span></label>
+      <input type="number" id="activo-val-${id}" class="activo-val"
+        value="${val}" min="0" step="0.1"
+        oninput="onValChange(${id})"/>
+    </div>
+
+    <div class="field" style="margin:0">
+      <label>Vida útil (años)</label>
+      <input type="number" id="activo-vida-${id}" class="activo-vida"
+        value="${vidaDefault}" min="1" max="50"
+        oninput="recalcActivos()"/>
+    </div>
+
+    <div class="field" style="margin:0">
+      <label>Valor residual <span class="munit">${unit()}</span></label>
+      <input type="number" id="activo-resid-${id}" class="activo-resid"
+        value="${residDefault}" min="0" step="0.1"
+        oninput="recalcActivos()"/>
+      <p class="hint" id="activo-resid-pct-${id}"></p>
+    </div>
+
     <div class="field" style="margin:0">
       <label>Dep. anual</label>
-      <div id="dep-anual-${id}"
+      <div id="activo-dep-${id}"
            style="padding:9px 12px;background:var(--surface2);border:1px solid var(--border);
-                  border-radius:var(--radius-sm);font-weight:600;font-size:0.85rem">—</div>
-    </div>
-    <div style="padding-bottom:2px">
-      <button class="btn-sm btn-danger" onclick="removeDep(${id})">✕</button>
+                  border-radius:var(--radius-sm);font-weight:600;font-size:0.85rem;color:var(--navy)">—</div>
+      <p class="hint" id="activo-dep-anos-${id}"></p>
     </div>`;
+
   list.appendChild(div);
-  recalcDep();
+  recalcActivos();
 }
 
-function onDepSelChange(id) {
-  const sel = document.getElementById('dep-sel-' + id);
-  const vida = document.getElementById('dep-vida-' + id);
-  if (sel.value) vida.value = sel.value;
-  recalcDep();
+/* ── Al cambiar tipo: actualizar vida útil y residual sugerido ── */
+function onTipoChange(id) {
+  const tipoNm = document.getElementById('activo-tipo-' + id).value;
+  const tipo   = TIPOS_ACTIVO[tipoNm] || TIPOS_ACTIVO['Manual (definir)'];
+  const val    = +document.getElementById('activo-val-' + id).value || 0;
+  document.getElementById('activo-vida-'  + id).value = tipo.vida;
+  document.getElementById('activo-resid-' + id).value = (val * tipo.residPct / 100).toFixed(2);
+  recalcActivos();
 }
 
-function removeDep(id) {
-  document.getElementById('dep-item-' + id)?.remove();
-  recalcDep();
+/* ── Al cambiar valor: recalcular residual sugerido ── */
+function onValChange(id) {
+  const tipoNm = document.getElementById('activo-tipo-' + id).value;
+  const tipo   = TIPOS_ACTIVO[tipoNm] || TIPOS_ACTIVO['Manual (definir)'];
+  const val    = +document.getElementById('activo-val-' + id).value || 0;
+  document.getElementById('activo-resid-' + id).value = (val * tipo.residPct / 100).toFixed(2);
+  recalcActivos();
 }
 
-function recalcDep() {
-  let total = 0;
-  document.querySelectorAll('.dep-item').forEach(item => {
-    const val  = +item.querySelector('.dep-val').value  || 0;
-    const vida = +item.querySelector('.dep-vida').value || 1;
-    const anual = val / vida;
-    total += anual;
-    const id = item.id.replace('dep-item-', '');
-    const lbl = document.getElementById('dep-anual-' + id);
-    if (lbl) lbl.textContent = fmt(anual);
+function removeActivo(id) {
+  document.getElementById('activo-' + id)?.remove();
+  recalcActivos();
+}
+
+/* ── Recalcular resumen de activos ── */
+function recalcActivos() {
+  let totalInv   = 0;
+  let totalResid = 0;
+  let totalDepAnual = 0; // solo como referencia año 1
+
+  document.querySelectorAll('.activo-item').forEach(item => {
+    const id    = item.id.replace('activo-', '');
+    const val   = +document.getElementById('activo-val-'   + id).value || 0;
+    const resid = +document.getElementById('activo-resid-' + id).value || 0;
+    const vida  = +document.getElementById('activo-vida-'  + id).value || 1;
+    const dep   = (val - resid) / vida;
+
+    totalInv   += val;
+    totalResid += resid;
+    totalDepAnual += dep;
+
+    // Labels
+    const depLbl = document.getElementById('activo-dep-' + id);
+    if (depLbl) depLbl.textContent = fmt(dep) + ' / año';
+
+    const depAnosLbl = document.getElementById('activo-dep-anos-' + id);
+    if (depAnosLbl) depAnosLbl.textContent = `Durante ${vida} año${vida > 1 ? 's' : ''}`;
+
+    const residPctLbl = document.getElementById('activo-resid-pct-' + id);
+    if (residPctLbl && val > 0)
+      residPctLbl.textContent = `${((resid / val) * 100).toFixed(1)}% del valor de compra`;
   });
-  document.getElementById('dep-total-lbl').textContent = fmt(total);
-  return total;
+
+  // Actualizar panel resumen
+  document.getElementById('activos-inv-total').textContent  = fmt(totalInv);
+  document.getElementById('activos-resid-total').textContent = fmt(totalResid);
+  document.getElementById('activos-dep-total').textContent   = fmt(totalDepAnual);
+
+  // Actualizar unidades
+  refreshUnits();
 }
 
-function getDepAnual() {
+/* ── Obtener datos de activos para el flujo de caja ── */
+function getActivosData() {
+  const activos = [];
+  document.querySelectorAll('.activo-item').forEach(item => {
+    const id    = item.id.replace('activo-', '');
+    const val   = +document.getElementById('activo-val-'   + id).value || 0;
+    const resid = +document.getElementById('activo-resid-' + id).value || 0;
+    const vida  = +document.getElementById('activo-vida-'  + id).value || 1;
+    activos.push({ val, resid, vida, dep: (val - resid) / vida });
+  });
+  return activos;
+}
+
+/* ── Depreciación total para el año i (0-indexed) ── */
+function getDepPorAno(ano) {
+  // ano: 0 = Año 1, 1 = Año 2, etc.
+  let dep = 0;
+  document.querySelectorAll('.activo-item').forEach(item => {
+    const id   = item.id.replace('activo-', '');
+    const val  = +document.getElementById('activo-val-'   + id).value || 0;
+    const resid = +document.getElementById('activo-resid-' + id).value || 0;
+    const vida = +document.getElementById('activo-vida-'  + id).value || 1;
+    if (ano < vida) dep += (val - resid) / vida; // solo si está dentro de vida útil
+  });
+  return dep;
+}
+
+/* ── Inversión total (suma de valores de compra) ── */
+function getInvTotal() {
   let t = 0;
-  document.querySelectorAll('.dep-item').forEach(item => {
-    t += (+item.querySelector('.dep-val').value || 0) /
-         (+item.querySelector('.dep-vida').value || 1);
-  });
+  document.querySelectorAll('.activo-val').forEach(el => t += +el.value || 0);
   return t;
 }
 
-/* ── Init pestaña 1 ── */
+/* ── Residual total (suma de valores residuales) ── */
+function getResidTotal() {
+  let t = 0;
+  document.querySelectorAll('.activo-resid').forEach(el => t += +el.value || 0);
+  return t;
+}
+
+/* ── Init ── */
 function initParametros() {
-  addDep('Maquinaria industrial', 300, 10);
-  addDep('Infraestructura', 100, 25);
+  addActivo('Maquinaria industrial', 300, 30, 10);
+  addActivo('Infraestructura',       200, 40, 25);
   calcFinanc();
   calcWACC();
 }

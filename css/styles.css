@@ -143,7 +143,9 @@ header{background:var(--navy);padding:0 2rem;position:sticky;top:0;z-index:200;b
 
 /* DEP ITEM */
 .dep-item{display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:10px;align-items:end;margin-bottom:10px;padding:14px;background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--border)}
-@media(max-width:700px){.dep-item{grid-template-columns:1fr 1fr}}
+.activo-item{display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:12px;align-items:end;margin-bottom:12px;padding:16px;background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--border);position:relative}
+.activo-item:hover{border-color:var(--gold)}
+@media(max-width:700px){.dep-item,.activo-item{grid-template-columns:1fr 1fr}}
 
 /* WACC */
 .wacc-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px;margin-top:12px}

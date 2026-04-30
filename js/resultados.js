@@ -6,7 +6,7 @@ function buildResults() {
   // Primero recalcular FCF con datos actuales
   buildFCF();
 
-  const { rows, inv, kt, tasa, anos, ing, cost, tax, depA, deuda, resid, prestamo } = Estado.lastFCF;
+  const { rows, inv, kt, tasa, anos, ing, cost, tax, depPorAno, deuda, resid, prestamo } = Estado.lastFCF;
   const yr0 = -(inv + kt) + (Estado.financM === 'mixto' ? prestamo : 0);
   const fcl  = rows.map(r => r.fcl);
   const allF = [yr0, ...fcl]; // flujos desde año 0
@@ -117,13 +117,14 @@ function renderSens() {
     const fclM = [];
 
     for (let i = 0; i < anos; i++) {
+      const dep      = depPorAno[i];
       const ebitda   = ingM[i] - costM[i];
-      const ebit     = ebitda - depA;
+      const ebit     = ebitda - dep;
       const interes  = deuda[i].i;
       const ebt      = ebit - interes;
       const impuesto = Math.max(0, ebt * tax);
       const utilNeta = ebt - impuesto;
-      const fcOp     = utilNeta + depA;
+      const fcOp     = utilNeta + dep;
       let   fcl      = fcOp - deuda[i].a;
       if (i === anos - 1) fcl += resid + (Estado.ktRecup === 'si' ? kt : 0);
       fclM.push(fcl);

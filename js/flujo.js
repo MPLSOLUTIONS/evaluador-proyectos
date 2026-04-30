@@ -6,16 +6,14 @@ let chartFCF = null;
 
 /* ── Construir y renderizar el flujo completo ── */
 function buildFCF() {
-  const inv    = +document.getElementById('p-inversion').value || 0;
-  const resid  = +document.getElementById('p-residual').value  || 0;
-  const kt     = +document.getElementById('p-kt').value        || 0;
-  const tax    = (+document.getElementById('p-impuesto').value || 0) / 100;
-  const tasa   = getTasa();
-  const depA   = getDepAnual();
-  const deuda  = getDeudaTabla();
+  const inv      = getInvTotal();                  // suma de valores de compra de activos
+  const resid    = getResidTotal();                // suma de valores residuales de activos
+  const kt       = +document.getElementById('p-kt').value || 0;
+  const tax      = (+document.getElementById('p-impuesto').value || 0) / 100;
+  const tasa     = getTasa();
+  const deuda    = getDeudaTabla();
   const prestamo = Estado.financM === 'mixto'
-    ? (+document.getElementById('f-monto').value || 0)
-    : 0;
+    ? (+document.getElementById('f-monto').value || 0) : 0;
 
   const ing  = getColTotals(Estado.ventaRows);
   const cost = getColTotals(Estado.costoRows);
@@ -23,7 +21,10 @@ function buildFCF() {
 
   // ── Calcular filas año a año ──
   const rows = [];
+  const depPorAno = Array.from({ length: anos }, (_, i) => getDepPorAno(i));
+
   for (let i = 0; i < anos; i++) {
+    const depA     = depPorAno[i];               // depreciación real de ese año
     const ebitda   = ing[i]  - cost[i];
     const ebit     = ebitda  - depA;
     const interes  = deuda[i].i;
@@ -33,7 +34,7 @@ function buildFCF() {
     const fcOp     = utilNeta + depA;
     const fcn      = fcOp    - deuda[i].a;
 
-    // FCL: FCN + residual y KT en último año
+    // FCL: FCN + residual y KT en último año del proyecto
     let fcl = fcn;
     if (i === anos - 1) {
       fcl += resid + (Estado.ktRecup === 'si' ? kt : 0);
@@ -43,17 +44,17 @@ function buildFCF() {
   }
 
   // Guardar en estado global
-  Estado.lastFCF = { rows, inv, resid, kt, tasa, tax, depA, anos, deuda, prestamo, ing, cost };
+  Estado.lastFCF = { rows, inv, resid, kt, tasa, tax, depPorAno, anos, deuda, prestamo, ing, cost };
 
   // ── Renderizar tabla ──
-  renderFCFTable(rows, inv, kt, resid, prestamo, anos, depA);
+  renderFCFTable(rows, inv, kt, resid, prestamo, anos);
 
   // ── Renderizar gráfico ──
   renderFCFChart(rows, anos);
 }
 
 /* ── Tabla de flujo de caja ── */
-function renderFCFTable(rows, inv, kt, resid, prestamo, anos, depA) {
+function renderFCFTable(rows, inv, kt, resid, prestamo, anos) {
   const table = document.getElementById('fcf-table');
 
   // Cabecera con Año 0
@@ -105,7 +106,7 @@ function renderFCFTable(rows, inv, kt, resid, prestamo, anos, depA) {
   html += row('(+) Ingresos por ventas',     null, rows.map(r => r.ing));
   html += row('(-) Costos operacionales',    null, rows.map(r => -r.cost));
   html += subRow('EBITDA',                   null, rows.map(r => r.ebitda));
-  html += row('(-) Depreciaciones',          null, rows.map(_ => -depA), true);
+  html += row('(-) Depreciaciones',          null, rows.map(r => -r.depA), true);
   html += subRow('EBIT — Resultado operacional', null, rows.map(r => r.ebit));
 
   if (Estado.financM === 'mixto') {
@@ -119,7 +120,7 @@ function renderFCFTable(rows, inv, kt, resid, prestamo, anos, depA) {
   // ── Sección: Flujo de caja ──
   html += secRow('FLUJO DE CAJA OPERACIONAL');
   html += row('(+) Utilidad neta',           null, rows.map(r => r.utilNeta));
-  html += row('(+) Depreciaciones (no caja)', null, rows.map(_ => depA), true);
+  html += row('(+) Depreciaciones (no caja)', null, rows.map(r => r.depA), true);
   html += subRow('Flujo de caja operacional (FCO)', null, rows.map(r => r.fcOp));
 
   if (Estado.financM === 'mixto') {

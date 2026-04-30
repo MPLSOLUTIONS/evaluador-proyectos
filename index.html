@@ -91,18 +91,28 @@
   </div>
 
   <div class="card">
-    <div class="card-header"><h2>💰 Inversión inicial</h2></div>
+    <div class="card-header">
+      <h2>🏗️ Activos del proyecto</h2>
+      <button class="btn-sm" onclick="addActivo()">+ Agregar activo</button>
+    </div>
     <div class="card-body">
-      <div class="field-row">
-        <div class="field">
-          <label>Monto inversión inicial <span class="munit">MM$</span></label>
-          <input type="number" id="p-inversion" value="500" min="0" step="0.1"/>
-          <p class="hint">Activos fijos, instalaciones, equipamiento</p>
+      <p class="hint" style="margin-bottom:16px">Ingresa cada activo a adquirir. La inversión inicial, depreciaciones y valor residual se calculan automáticamente.</p>
+      <div id="activos-list"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:16px">
+        <div style="padding:14px 16px;background:var(--navy);border-radius:var(--radius-sm)">
+          <div style="font-size:0.68rem;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px">Inversión total</div>
+          <div id="activos-inv-total" style="font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--white)">—</div>
+          <div style="font-size:0.7rem;color:var(--gray);margin-top:2px">Suma valores de compra</div>
         </div>
-        <div class="field">
-          <label>Valor residual al final del proyecto <span class="munit">MM$</span></label>
-          <input type="number" id="p-residual" value="50" min="0" step="0.1"/>
-          <p class="hint">Estimación de venta de activos al término</p>
+        <div style="padding:14px 16px;background:var(--navy);border-radius:var(--radius-sm)">
+          <div style="font-size:0.68rem;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px">Valor residual total</div>
+          <div id="activos-resid-total" style="font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--white)">—</div>
+          <div style="font-size:0.7rem;color:var(--gray);margin-top:2px">Se recupera al fin del proyecto</div>
+        </div>
+        <div style="padding:14px 16px;background:var(--navy);border-radius:var(--radius-sm)">
+          <div style="font-size:0.68rem;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px">Dep. total año 1</div>
+          <div id="activos-dep-total" style="font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--white)">—</div>
+          <div style="font-size:0.7rem;color:var(--gray);margin-top:2px">Varía según vida útil de cada activo</div>
         </div>
       </div>
     </div>
@@ -145,19 +155,7 @@
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-header">
-      <h2>📉 Depreciaciones</h2>
-      <button class="btn-sm" onclick="addDep()">+ Agregar activo</button>
-    </div>
-    <div class="card-body">
-      <div id="dep-list"></div>
-      <div style="margin-top:14px;padding:12px 16px;background:var(--gold-pale);border-radius:var(--radius-sm);display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:0.78rem;font-weight:700;color:var(--amber);text-transform:uppercase;letter-spacing:0.04em">Depreciación anual total</span>
-        <span id="dep-total-lbl" style="font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:var(--navy)">—</span>
-      </div>
-    </div>
-  </div>
+
 
   <div class="card">
     <div class="card-header"><h2>🔄 Capital de trabajo</h2></div>
