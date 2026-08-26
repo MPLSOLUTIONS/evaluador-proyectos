@@ -74,94 +74,112 @@ function renderFCFTable(rows, inv, kt, resid, prestamo, anos) {
     `<td class="${arr[i] < 0 ? 'neg-v' : ''}">${fmt(arr[i])}</td>`
   ).join('');
 
-  function secRow(label) {
-    return `<tr class="sec-row"><td colspan="${anos + 2}">${label}</td></tr>`;
+  function secRow(label, tip) {
+    return `<tr class="sec-row"><td colspan="${anos + 2}">${label}${tip ? tipHtml(tip) : ''}</td></tr>`;
   }
 
-  function row(label, yr0val, arr, indent = false) {
+  function row(label, yr0val, arr, indent = false, tip = null) {
     const yr0td = yr0val !== null ? val0(yr0val) : dash0;
     const tds = Array.from({ length: anos }, (_, i) =>
       `<td class="${arr[i] < 0 ? 'neg-v' : ''}">${fmt(arr[i])}</td>`
     ).join('');
-    return `<tr class="${indent ? 'ind' : ''}"><td>${label}</td>${yr0td}${tds}</tr>`;
+    return `<tr class="${indent ? 'ind' : ''}"><td>${label}${tip ? tipHtml(tip) : ''}</td>${yr0td}${tds}</tr>`;
   }
 
-  function subRow(label, yr0val, arr) {
+  function subRow(label, yr0val, arr, tip = null) {
     const yr0td = yr0val !== null ? val0(yr0val) : dash0;
     const tds = Array.from({ length: anos }, (_, i) =>
       `<td style="font-weight:700;color:${arr[i] < 0 ? 'var(--red)' : 'var(--green)'}">${fmt(arr[i])}</td>`
     ).join('');
-    return `<tr class="sub-row"><td>${label}</td>${yr0td}${tds}</tr>`;
+    return `<tr class="sub-row"><td>${label}${tip ? tipHtml(tip) : ''}</td>${yr0td}${tds}</tr>`;
   }
 
-  function totRow(label, yr0val, arr) {
+  function totRow(label, yr0val, arr, tip = null) {
     const yr0td = yr0val !== null ? val0(yr0val) : dash0;
     const tds = Array.from({ length: anos }, (_, i) =>
       `<td style="font-weight:700;color:${arr[i] < 0 ? 'var(--red)' : 'var(--green)'}">${fmt(arr[i])}</td>`
     ).join('');
-    return `<tr class="tot-row"><td>${label}</td>${yr0td}${tds}</tr>`;
+    return `<tr class="tot-row"><td>${label}${tip ? tipHtml(tip) : ''}</td>${yr0td}${tds}</tr>`;
   }
 
   // ── Sección: Resultado de operación ──
-  let html = secRow('RESULTADO DE OPERACIÓN');
+  let html = secRow('RESULTADO DE OPERACIÓN', 'Estado de resultados del proyecto: desde ingresos y costos hasta la utilidad neta, año a año.');
   html += row('(+) Ingresos por ventas',     null, rows.map(r => r.ing));
   html += row('(-) Costos operacionales',    null, rows.map(r => -r.cost));
-  html += subRow('EBITDA',                   null, rows.map(r => r.ebitda));
-  html += row('(-) Depreciaciones',          null, rows.map(r => -r.depA), true);
-  html += subRow('EBIT — Resultado operacional', null, rows.map(r => r.ebit));
+  html += subRow('EBITDA',                   null, rows.map(r => r.ebitda),
+    'Ingresos − Costos operacionales. Mide la rentabilidad operativa antes de depreciación, intereses e impuestos.');
+  html += row('(-) Depreciaciones',          null, rows.map(r => -r.depA), true,
+    'Desgaste contable anual de los activos, calculado en la pestaña Parámetros. No representa una salida real de caja.');
+  html += subRow('EBIT — Resultado operacional', null, rows.map(r => r.ebit),
+    'EBITDA − Depreciaciones. Utilidad operativa después de descontar el desgaste de los activos.');
 
   if (Estado.financM === 'mixto') {
-    html += row('(-) Gastos financieros (intereses)', null, rows.map(r => -r.interes), true);
+    html += row('(-) Gastos financieros (intereses)', null, rows.map(r => -r.interes), true,
+      'Intereses del préstamo sobre el saldo insoluto ese año (sistema francés). Se deducen de impuesto.');
   }
 
-  html += subRow('EBT — Resultado antes de impuesto', null, rows.map(r => r.ebt));
-  html += row('(-) Impuesto a la renta',     null, rows.map(r => -r.impuesto), true);
-  html += subRow('Utilidad neta',             null, rows.map(r => r.utilNeta));
+  html += subRow('EBT — Resultado antes de impuesto', null, rows.map(r => r.ebt),
+    'EBIT − Gastos financieros. Base sobre la cual se calcula el impuesto a la renta.');
+  html += row('(-) Impuesto a la renta',     null, rows.map(r => -r.impuesto), true,
+    'EBT × tasa de impuesto (definida en Parámetros). Solo se aplica si el EBT es positivo.');
+  html += subRow('Utilidad neta',             null, rows.map(r => r.utilNeta),
+    'EBT − Impuesto a la renta. Resultado contable final del ejercicio.');
 
   // ── Sección: Flujo de caja ──
-  html += secRow('FLUJO DE CAJA OPERACIONAL');
+  html += secRow('FLUJO DE CAJA OPERACIONAL', 'Convierte la utilidad contable en caja real: se reincorpora la depreciación (no es salida de caja) y se descuenta la amortización de deuda.');
   html += row('(+) Utilidad neta',           null, rows.map(r => r.utilNeta));
-  html += row('(+) Depreciaciones (no caja)', null, rows.map(r => r.depA), true);
-  html += subRow('Flujo de caja operacional (FCO)', null, rows.map(r => r.fcOp));
+  html += row('(+) Depreciaciones (no caja)', null, rows.map(r => r.depA), true,
+    'Se suma de vuelta porque fue descontada contablemente pero no implica una salida real de caja.');
+  html += subRow('Flujo de caja operacional (FCO)', null, rows.map(r => r.fcOp),
+    'Utilidad neta + Depreciaciones. Caja generada por la operación del negocio, antes de pagos de deuda.');
 
   if (Estado.financM === 'mixto') {
-    html += row('(-) Amortización préstamo', null, rows.map(r => -r.amort), true);
+    html += row('(-) Amortización préstamo', null, rows.map(r => -r.amort), true,
+      'Parte del pago anual del préstamo que reduce el capital adeudado (no es gasto contable, pero sí sale de la caja).');
   }
 
-  html += totRow('Flujo de Caja Neto (FCN)', null, rows.map(r => r.fcn));
+  html += totRow('Flujo de Caja Neto (FCN)', null, rows.map(r => r.fcn),
+    'FCO − Amortización del préstamo. Caja neta que efectivamente queda disponible cada año.');
 
   // ── Sección: Inversión inicial (Año 0) y recuperaciones ──
-  html += secRow('INVERSIÓN, FINANCIAMIENTO Y RECUPERACIONES');
+  html += secRow('INVERSIÓN, FINANCIAMIENTO Y RECUPERACIONES', 'Movimientos de caja del Año 0 (inversión, capital de trabajo, préstamo) y las recuperaciones del último año (valor residual, capital de trabajo).');
 
   // Año 0: salidas
-  html += row('(-) Inversión inicial', -inv, Array(anos).fill(0));
-  html += row('(-) Capital de trabajo', -kt, Array(anos).fill(0), true);
+  html += row('(-) Inversión inicial', -inv, Array(anos).fill(0), false,
+    'Suma de los valores de compra de todos los activos (pestaña Parámetros). Sale de caja en el Año 0.');
+  html += row('(-) Capital de trabajo', -kt, Array(anos).fill(0), true,
+    'Monto de capital de trabajo invertido en el Año 0 para iniciar la operación.');
 
   if (Estado.financM === 'mixto') {
-    html += row('(+) Préstamo recibido', prestamo, Array(anos).fill(0), true);
+    html += row('(+) Préstamo recibido', prestamo, Array(anos).fill(0), true,
+      'Monto del préstamo que ingresa como caja en el Año 0, financiando parte de la inversión.');
   }
 
   // Último año: recuperaciones
   if (resid > 0) {
     const residArr = Array(anos).fill(0);
     residArr[anos - 1] = resid;
-    html += row('(+) Valor residual activos', 0, residArr, true);
+    html += row('(+) Valor residual activos', 0, residArr, true,
+      'Valor residual de los activos, recuperado como ingreso en el último año del horizonte de evaluación.');
   }
 
   if (Estado.ktRecup === 'si') {
     const ktArr = Array(anos).fill(0);
     ktArr[anos - 1] = kt;
-    html += row('(+) Recuperación capital de trabajo', 0, ktArr, true);
+    html += row('(+) Recuperación capital de trabajo', 0, ktArr, true,
+      'El capital de trabajo invertido en el Año 0 se recupera como ingreso en el último año (configurado en Parámetros).');
   }
 
   // FCL: incluye Año 0
   const yr0FCL = -(inv + kt) + (Estado.financM === 'mixto' ? prestamo : 0);
-  html += totRow('Flujo de Caja Libre (FCL)', yr0FCL, rows.map(r => r.fcl));
+  html += totRow('Flujo de Caja Libre (FCL)', yr0FCL, rows.map(r => r.fcl),
+    'Flujo de Caja Neto + recuperaciones del último año (valor residual y capital de trabajo). Es la base para calcular VAN, TIR y Payback.');
 
   // ── Acumulado ──
   let acum = yr0FCL;
   const acumArr = rows.map(r => { acum += r.fcl; return acum; });
-  html += row('Flujo acumulado', yr0FCL, acumArr);
+  html += row('Flujo acumulado', yr0FCL, acumArr, false,
+    'Suma progresiva del FCL desde el Año 0. El momento en que pasa de negativo a positivo marca el punto de recuperación (payback).');
 
   table.innerHTML = thead + `<tbody>${html}</tbody>`;
 }

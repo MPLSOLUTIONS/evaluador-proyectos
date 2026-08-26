@@ -139,28 +139,28 @@ function addActivo(nm = 'Maquinaria industrial', val = 300, resid = null, vida =
     </div>
 
     <div class="field" style="margin:0">
-      <label>Tipo de activo</label>
+      <label>Tipo de activo <span class="tip" tabindex="0" data-tip="Al elegir una categoría se sugieren automáticamente vida útil y valor residual. Usa 'Manual' para definirlos tú mismo.">?</span></label>
       <select id="activo-tipo-${id}" onchange="onTipoChange(${id})">
         ${opts}
       </select>
     </div>
 
     <div class="field" style="margin:0">
-      <label>Valor de compra <span class="munit">${unit()}</span></label>
+      <label>Valor de compra <span class="munit">${unit()}</span> <span class="tip" tabindex="0" data-tip="Costo total de adquisición del activo. Se suma a la inversión inicial del proyecto (Año 0).">?</span></label>
       <input type="number" id="activo-val-${id}" class="activo-val"
         value="${val}" min="0" step="0.1"
         oninput="onValChange(${id})"/>
     </div>
 
     <div class="field" style="margin:0">
-      <label>Vida útil (años)</label>
+      <label>Vida útil (años) <span class="tip" tabindex="0" data-tip="Años durante los cuales se deprecia el activo. La depreciación anual = (Valor de compra − Valor residual) ÷ Vida útil.">?</span></label>
       <input type="number" id="activo-vida-${id}" class="activo-vida"
         value="${vidaDefault}" min="1" max="50"
         oninput="recalcActivos()"/>
     </div>
 
     <div class="field" style="margin:0">
-      <label>Valor residual <span class="munit">${unit()}</span></label>
+      <label>Valor residual <span class="munit">${unit()}</span> <span class="tip" tabindex="0" data-tip="Valor estimado del activo al terminar su vida útil. Se recupera como ingreso al finalizar el proyecto.">?</span></label>
       <input type="number" id="activo-resid-${id}" class="activo-resid"
         value="${residDefault}" min="0" step="0.1"
         oninput="recalcActivos()"/>
@@ -168,7 +168,7 @@ function addActivo(nm = 'Maquinaria industrial', val = 300, resid = null, vida =
     </div>
 
     <div class="field" style="margin:0">
-      <label>Dep. anual</label>
+      <label>Dep. anual <span class="tip" tabindex="0" data-tip="Depreciación anual calculada automáticamente: (Valor de compra − Valor residual) ÷ Vida útil.">?</span></label>
       <div id="activo-dep-${id}"
            style="padding:9px 12px;background:var(--surface2);border:1px solid var(--border);
                   border-radius:var(--radius-sm);font-weight:600;font-size:0.85rem;color:var(--navy)">—</div>

@@ -44,6 +44,11 @@ function refreshUnits() {
   document.querySelectorAll('.munit').forEach(el => el.textContent = unit());
 }
 
+/* ── Ícono de ayuda (tooltip) para inyectar en HTML generado por JS ── */
+function tipHtml(text) {
+  return ` <span class="tip" tabindex="0" data-tip="${String(text).replace(/"/g, '&quot;')}">?</span>`;
+}
+
 /* ── TIR por bisección (flujos desde año 0) ── */
 function calcTIR(flujos) {
   const f = r => flujos.reduce((a, v, i) => a + v / Math.pow(1 + r, i), 0);

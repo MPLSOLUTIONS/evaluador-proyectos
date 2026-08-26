@@ -63,11 +63,11 @@
     <div class="card-body">
       <div class="card-grid">
         <div class="field">
-          <label>Nombre del proyecto</label>
+          <label>Nombre del proyecto <span class="tip" tabindex="0" data-tip="Nombre descriptivo para identificar este proyecto en tus reportes. No afecta los cálculos.">?</span></label>
           <input type="text" id="p-nombre" value="Nueva línea de producción madera"/>
         </div>
         <div class="field">
-          <label>Tipo de proyecto</label>
+          <label>Tipo de proyecto <span class="tip" tabindex="0" data-tip="Clasificación referencial del proyecto. Ayuda a interpretar los resultados, pero no afecta los cálculos.">?</span></label>
           <select id="p-tipo">
             <option>Nueva línea de producción</option>
             <option>Compra de maquinaria</option>
@@ -77,7 +77,7 @@
           </select>
         </div>
         <div class="field">
-          <label>Horizonte de evaluación</label>
+          <label>Horizonte de evaluación <span class="tip" tabindex="0" data-tip="Cantidad de años que se proyectará el flujo de caja. Debe cubrir el periodo relevante del proyecto (1 a 10 años).">?</span></label>
           <div style="display:flex;align-items:center;gap:12px;margin-top:4px">
             <input type="range" id="p-anos" min="1" max="10" value="5"
                    oninput="onAnosChange()" style="flex:1;accent-color:var(--gold)"/>
@@ -135,15 +135,15 @@
       <div id="financ-mixto-box" class="hidden">
         <div class="field-row-3">
           <div class="field">
-            <label>Monto del préstamo <span class="munit">MM$</span></label>
+            <label>Monto del préstamo <span class="munit">MM$</span> <span class="tip" tabindex="0" data-tip="Monto de deuda que financia parte de la inversión inicial. Reduce el capital propio aportado en el Año 0.">?</span></label>
             <input type="number" id="f-monto" value="300" min="0" step="0.1" oninput="calcFinanc()"/>
           </div>
           <div class="field">
-            <label>Tasa anual del préstamo (%)</label>
+            <label>Tasa anual del préstamo (%) <span class="tip" tabindex="0" data-tip="Tasa de interés anual del crédito. Se usa para calcular la cuota fija y el interés deducible de impuestos.">?</span></label>
             <input type="number" id="f-tasa" value="6.5" min="0" step="0.1" oninput="calcFinanc()"/>
           </div>
           <div class="field">
-            <label>Plazo del préstamo (años)</label>
+            <label>Plazo del préstamo (años) <span class="tip" tabindex="0" data-tip="Número de años en que se paga el préstamo mediante cuotas anuales fijas (sistema francés).">?</span></label>
             <input type="number" id="f-plazo" value="5" min="1" max="20" oninput="calcFinanc()"/>
           </div>
         </div>
@@ -155,19 +155,17 @@
     </div>
   </div>
 
-
-
   <div class="card">
     <div class="card-header"><h2>🔄 Capital de trabajo</h2></div>
     <div class="card-body">
       <div class="field-row">
         <div class="field">
-          <label>Monto capital de trabajo <span class="munit">MM$</span></label>
+          <label>Monto capital de trabajo <span class="munit">MM$</span> <span class="tip" tabindex="0" data-tip="Caja necesaria para operar (existencias, cuentas por cobrar, etc.) antes de generar ingresos. Se invierte en el Año 0.">?</span></label>
           <input type="number" id="p-kt" value="30" min="0" step="0.1"/>
           <p class="hint">Requerimiento inicial de caja operativa</p>
         </div>
         <div class="field">
-          <label>Recuperación al final del proyecto</label>
+          <label>Recuperación al final del proyecto <span class="tip" tabindex="0" data-tip="Indica si el capital de trabajo se recupera como ingreso en el último año del horizonte de evaluación.">?</span></label>
           <div class="toggle-row" id="kt-toggle" style="margin-top:6px">
             <button class="active" onclick="setKTR('si', this)">Sí se recupera</button>
             <button onclick="setKTR('no', this)">No se recupera</button>
@@ -189,22 +187,22 @@
     <div class="card-body">
       <div id="tasa-manual-box">
         <div class="field" style="max-width:220px">
-          <label>Tasa de descuento (%)</label>
+          <label>Tasa de descuento (%) <span class="tip" tabindex="0" data-tip="Tasa usada para descontar los flujos futuros y calcular el VAN. Refleja el costo de oportunidad del capital.">?</span></label>
           <input type="number" id="p-tasa" value="12" min="0" step="0.1"/>
         </div>
       </div>
       <div id="tasa-wacc-box" class="hidden">
         <div class="wacc-box">
           <div class="field-row">
-            <div class="field"><label>% Deuda</label><input type="number" id="w-dpct" value="40" min="0" max="100" oninput="calcWACC()"/></div>
-            <div class="field"><label>Costo deuda (%)</label><input type="number" id="w-dcost" value="6.5" min="0" step="0.1" oninput="calcWACC()"/></div>
+            <div class="field"><label>% Deuda <span class="tip" tabindex="0" data-tip="Proporción de la inversión financiada con deuda, usada para ponderar el costo de capital (WACC).">?</span></label><input type="number" id="w-dpct" value="40" min="0" max="100" oninput="calcWACC()"/></div>
+            <div class="field"><label>Costo deuda (%) <span class="tip" tabindex="0" data-tip="Tasa de interés de la deuda. Se ajusta por el escudo tributario en el cálculo del WACC.">?</span></label><input type="number" id="w-dcost" value="6.5" min="0" step="0.1" oninput="calcWACC()"/></div>
           </div>
           <div class="field-row">
-            <div class="field"><label>% Patrimonio</label><input type="number" id="w-ppct" value="60" min="0" max="100" oninput="calcWACC()"/></div>
-            <div class="field"><label>Costo patrimonio (%)</label><input type="number" id="w-pcost" value="15" min="0" step="0.1" oninput="calcWACC()"/></div>
+            <div class="field"><label>% Patrimonio <span class="tip" tabindex="0" data-tip="Proporción de la inversión financiada con capital propio (patrimonio).">?</span></label><input type="number" id="w-ppct" value="60" min="0" max="100" oninput="calcWACC()"/></div>
+            <div class="field"><label>Costo patrimonio (%) <span class="tip" tabindex="0" data-tip="Rentabilidad exigida por los accionistas: el costo de oportunidad del capital propio.">?</span></label><input type="number" id="w-pcost" value="15" min="0" step="0.1" oninput="calcWACC()"/></div>
           </div>
           <div class="field" style="max-width:200px">
-            <label>Tasa impuesto aplicada (%)</label>
+            <label>Tasa impuesto aplicada (%) <span class="tip" tabindex="0" data-tip="Tasa de impuesto usada para calcular el escudo tributario de la deuda dentro del WACC.">?</span></label>
             <input type="number" id="w-tax" value="27" min="0" oninput="calcWACC()"/>
           </div>
           <div class="wacc-result">
@@ -215,7 +213,7 @@
       </div>
       <hr class="section-sep"/>
       <div class="field" style="max-width:220px">
-        <label>Tasa impuesto a la renta (%)</label>
+        <label>Tasa impuesto a la renta (%) <span class="tip" tabindex="0" data-tip="Tasa de impuesto corporativo aplicada sobre la utilidad antes de impuesto (EBT) en el flujo de caja.">?</span></label>
         <input type="number" id="p-impuesto" value="27" min="0" step="0.1"/>
         <p class="hint">Se usa para calcular el impuesto sobre EBT</p>
       </div>
@@ -274,8 +272,11 @@
 <div class="tab-panel" id="tab-2">
 
   <div class="card">
-    <div class="card-header"><h2>💹 Estado de resultados y flujo de caja completo</h2></div>
+    <div class="card-header">
+      <h2>💹 Estado de resultados y flujo de caja completo <span class="tip" tabindex="0" data-tip="Detalle año a año desde el resultado operacional (EBITDA, EBIT, EBT) hasta el Flujo de Caja Libre (FCL), incluyendo inversión, financiamiento y recuperaciones en Año 0 y año final.">?</span></h2>
+    </div>
     <div class="card-body">
+      <p class="hint" style="margin-bottom:12px">La columna "Concepto" queda fija al desplazar la tabla horizontalmente. Pasa el cursor sobre cada fila para ver su definición.</p>
       <div class="table-scroll">
         <table class="fcf-table" id="fcf-table"></table>
       </div>
@@ -283,7 +284,9 @@
   </div>
 
   <div class="card">
-    <div class="card-header"><h2>📊 EBITDA · Flujo de Caja Neto · FCL Acumulado</h2></div>
+    <div class="card-header">
+      <h2>📊 EBITDA · Flujo de Caja Neto · FCL Acumulado <span class="tip" tabindex="0" data-tip="EBITDA: rentabilidad operativa anual. Flujo de Caja Neto: caja generada tras impuestos y deuda. FCL Acumulado: suma progresiva del Flujo de Caja Libre desde el Año 0 — cuando cruza sobre cero marca el punto de recuperación (payback).">?</span></h2>
+    </div>
     <div class="card-body">
       <div class="chart-wrap"><canvas id="chart-fcf"></canvas></div>
     </div>
@@ -313,18 +316,26 @@
     <div class="viability" id="viability-bar">
       <div class="v-icon" id="v-icon">📋</div>
       <div class="v-text">
-        <h3 id="v-titulo">—</h3>
+        <h3><span id="v-titulo">—</span> <span class="tip" tabindex="0" data-tip="Viable: VAN > 0 y TIR > tasa exigida. Revisar: VAN negativo pero dentro de un 15% de la inversión inicial. No viable: fuera de ambos criterios.">?</span></h3>
         <p id="v-desc">—</p>
       </div>
       <span class="v-badge badge-viable" id="v-badge">—</span>
     </div>
 
-    <div class="metrics-grid" id="kpi-grid"></div>
+    <div class="metrics-section">
+      <p class="metrics-caption">Rentabilidad y recuperación de la inversión</p>
+      <div class="metrics-grid" id="kpi-grid-main"></div>
+    </div>
+    <div class="metrics-section">
+      <p class="metrics-caption">Indicadores operacionales</p>
+      <div class="metrics-grid" id="kpi-grid-sec"></div>
+    </div>
 
     <div class="card">
       <div class="card-header">
-        <h2>🎯 Análisis de sensibilidad</h2>
+        <h2>🎯 Análisis de sensibilidad <span class="tip" tabindex="0" data-tip="Prueba cuánto cambian el VAN, la TIR y el Payback si una variable clave se mueve ±X%, manteniendo todo lo demás constante (análisis univariante). Sirve para identificar qué supuestos son más riesgosos para la viabilidad del proyecto.">?</span></h2>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <span class="tip" tabindex="0" data-tip="Variable que se hará variar en cada escenario; las demás se mantienen en su valor base.">?</span>
           <select id="sens-var" onchange="renderSens()"
                   style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;
                          font-family:'DM Sans',sans-serif;font-size:0.82rem;color:var(--navy)">
@@ -349,15 +360,17 @@
             <thead>
               <tr>
                 <th>Variación</th>
-                <th>VAN</th>
-                <th>TIR</th>
-                <th>Payback</th>
+                <th>VAN <span class="tip" tabindex="0" data-tip="Valor Actual Neto bajo este escenario. La barra visualiza su magnitud relativa a los demás escenarios.">?</span></th>
+                <th>Δ VAN vs Base <span class="tip" tabindex="0" data-tip="Variación porcentual del VAN de este escenario respecto al caso base (0%). Mide la sensibilidad (elasticidad) del VAN ante esta variable.">?</span></th>
+                <th>TIR <span class="tip" tabindex="0" data-tip="La TIR depende solo de los flujos de caja, no de la tasa de descuento: por eso no cambia al variar 'Tasa de descuento'.">?</span></th>
+                <th>Payback simple <span class="tip" tabindex="0" data-tip="Años para recuperar la inversión sin descontar los flujos. No varía al cambiar la tasa de descuento.">?</span></th>
                 <th>Viabilidad</th>
               </tr>
             </thead>
             <tbody id="sens-body"></tbody>
           </table>
         </div>
+        <p class="hint" id="sens-note" style="margin-top:10px"></p>
       </div>
     </div>
 
