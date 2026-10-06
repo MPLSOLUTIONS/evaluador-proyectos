@@ -1,8 +1,8 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#f6f7f9;--surface:#fff;--surface2:#f3f4f6;--border:#e2e5ea;--border-strong:#cfd4dc;
+  --bg:#e6f1fa;--surface:#fff;--surface2:#eef5fb;--border:#d3e2ee;--border-strong:#b9cfe0;
   --text:#1b1f27;--muted:#6a7280;--faint:#9aa1ad;
-  --accent:#2f5de4;--accent-hover:#2449bd;--accent-soft:#eef2fd;
+  --accent:#1a73b8;--accent-hover:#145d96;--accent-soft:#e1effa;
   --green:#15803d;--green-bg:#e8f5ec;
   --red:#b42318;--red-bg:#fdecea;
   --amber:#a15c07;--amber-bg:#fdf3e1;
@@ -14,7 +14,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .num,td,.metric-value,input[type=number]{font-variant-numeric:tabular-nums}
 
 /* TOPBAR */
-.topbar{background:var(--surface);border-bottom:1px solid var(--border)}
+.topbar{background:#d4e8f7;border-bottom:1px solid var(--border)}
 .topbar-inner{max-width:1240px;margin:0 auto;padding:0 24px;height:48px;display:flex;align-items:center;justify-content:space-between}
 .brand{font-size:13px;font-weight:600;color:var(--text);text-decoration:none}
 .brand span{color:var(--faint);font-weight:400;margin-left:8px}
@@ -34,7 +34,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .toggle-row button.active{background:var(--surface);color:var(--text);box-shadow:0 1px 2px rgba(16,24,40,.12)}
 
 /* TABS */
-.tabs-nav{background:var(--surface);border-bottom:1px solid var(--border);border-top:1px solid var(--border);position:sticky;top:0;z-index:100}
+.tabs-nav{background:#dcecf8;border-bottom:1px solid var(--border);border-top:1px solid var(--border);position:sticky;top:0;z-index:100}
 .tabs-nav-inner{max-width:1240px;margin:0 auto;display:flex;padding:0 24px;overflow-x:auto;gap:4px}
 .tab-btn{padding:12px 14px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;border:none;background:transparent;border-bottom:2px solid transparent;white-space:nowrap;font-family:var(--font)}
 .tab-btn.active{color:var(--text);border-bottom-color:var(--accent)}
@@ -99,11 +99,11 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .years-table td input{width:100%;padding:5px 7px;border:1px solid var(--border);border-radius:4px;font-size:13px;font-family:var(--font);color:var(--text);background:var(--surface);outline:none;text-align:right;min-width:72px}
 .years-table td input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
 .years-table td input.row-name{width:160px;text-align:left;font-weight:500}
-.years-table td input.is-pct{background:var(--accent-soft);border-color:#b9c8f5}
+.years-table td input.is-pct{background:var(--accent-soft);border-color:#9cc4e6}
 .years-table .cell-edit{display:flex;gap:4px;align-items:center}
 .years-table .cell-calc{font-size:11px;color:var(--faint);text-align:right;margin-top:2px}
 .years-table .mode-btn{padding:4px 7px;font-size:11px;border:1px solid var(--border);border-radius:4px;cursor:pointer;background:var(--surface2);color:var(--muted);font-weight:600;font-family:var(--font)}
-.years-table .mode-btn.is-pct{background:var(--accent-soft);color:var(--accent);border-color:#b9c8f5}
+.years-table .mode-btn.is-pct{background:var(--accent-soft);color:var(--accent);border-color:#9cc4e6}
 .years-table .col-base{background:var(--accent-soft)}
 .years-table td.row-total{font-weight:600;padding:8px 10px}
 .years-table .total-row td{background:var(--surface2);font-weight:600;padding:8px 10px;vertical-align:middle}
@@ -132,7 +132,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .fcf-table .tot-row td{font-weight:600;border-top:1px solid var(--border-strong);border-bottom:1px solid var(--border-strong);background:var(--accent-soft)}
 .fcf-table .neg-v,.fcf-table td.neg-v{color:var(--red)}
 .fcf-table .pos-v{color:var(--green)}
-.fcf-table .yr0-cell{background:rgba(47,93,228,.04)}
+.fcf-table .yr0-cell{background:rgba(26,115,184,.06)}
 .fcf-table td:first-child,.fcf-table th:first-child{position:sticky;left:0;z-index:2;background:var(--surface)}
 .fcf-table th:first-child,.fcf-table .sub-row td:first-child{background:var(--surface2)}
 .fcf-table .tot-row td:first-child{background:var(--accent-soft)}

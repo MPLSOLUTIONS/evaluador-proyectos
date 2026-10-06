@@ -168,7 +168,7 @@ function updateChartVentas(data) {
   if (!ctx) return;
   chartVentas = new Chart(ctx, { type: 'bar', data: { labels,
     datasets: [{ label: 'Ingresos', data: data.slice(0, Estado.anos),
-      backgroundColor: 'rgba(47,93,228,0.85)', borderRadius: 3, maxBarThickness: 44 }]
+      backgroundColor: 'rgba(26,115,184,0.85)', borderRadius: 3, maxBarThickness: 44 }]
   }, options: chartOptions() });
 }
 
@@ -190,7 +190,7 @@ function updateChartCostos(data) {
 function chartOptions() {
   return { responsive: true, maintainAspectRatio: false,
     plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => fmt(c.raw) } } },
-    scales: { y: { ticks: { callback: v => fmt(v), color: '#6a7280' }, grid: { color: '#eceef2' }, border: { display: false } },
+    scales: { y: { ticks: { callback: v => fmt(v), color: '#6a7280' }, grid: { color: '#dbe8f2' }, border: { display: false } },
               x: { ticks: { color: '#6a7280' }, grid: { display: false } } } };
 }
 
