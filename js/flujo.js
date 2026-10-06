@@ -220,8 +220,8 @@ function renderFCFChart(rows, anos, yr0FCL) {
           type: 'bar',
           label: 'EBITDA',
           data: ebitda,
-          backgroundColor: 'rgba(47,93,228,0.18)',
-          borderColor: 'rgba(47,93,228,0.9)',
+          backgroundColor: 'rgba(26,115,184,0.18)',
+          borderColor: 'rgba(26,115,184,0.9)',
           borderWidth: 2,
           borderRadius: 4,
           yAxisID: 'y',
@@ -283,7 +283,7 @@ function renderFCFChart(rows, anos, yr0FCL) {
       scales: {
         y: {
           ticks: { callback: v => fmt(v) },
-          grid: { color: '#eceef2' }, border: { display: false },
+          grid: { color: '#dbe8f2' }, border: { display: false },
           // Línea en cero destacada
           afterDataLimits: axis => {
             if (axis.max < 0) axis.max = axis.max * 0.9;
