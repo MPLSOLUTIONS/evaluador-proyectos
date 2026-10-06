@@ -3,87 +3,81 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Evaluador de Proyectos · MPL Solutions</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<title>Evaluador de Proyectos de Inversión</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="css/styles.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 </head>
 <body>
 
-<!-- HEADER -->
-<header>
-  <div class="header-inner">
-    <a class="logo" href="../index.html">
-      <div class="logo-icon">📊</div>
-      <div>
-        <span class="logo-name">Portal Empresarial</span>
-        <span class="logo-sub">MPL Solutions</span>
-      </div>
-    </a>
-    <a class="back-btn" href="../index.html">← Portal</a>
-  </div>
-</header>
-
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-inner">
-    <div>
-      <div class="hero-badge">📐 Evaluador financiero profesional</div>
-      <h1>Evaluador de <span>Proyectos</span> de Inversión</h1>
-      <p>VAN · TIR · EBITDA · Flujo de Caja con Año 0 · Financiamiento · Depreciaciones · Capital de Trabajo · Sensibilidad</p>
-    </div>
-    <div>
-      <p style="font-size:0.72rem;color:var(--gold);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;font-weight:600">Moneda del proyecto</p>
-      <div class="hero-moneda">
-        <button class="active" onclick="setMoneda('CLP', this)">$ Millones CLP</button>
-        <button onclick="setMoneda('UF', this)">Miles UF</button>
-      </div>
-    </div>
-  </div>
-</section>
-<div class="divider"></div>
-
-<!-- TABS -->
-<div class="tabs-nav">
-  <div class="tabs-nav-inner">
-    <button class="tab-btn active" onclick="goTab(0)"><span class="tab-num">1</span> Parámetros</button>
-    <button class="tab-btn" onclick="goTab(1)"><span class="tab-num">2</span> Ventas y Costos</button>
-    <button class="tab-btn" onclick="goTab(2)"><span class="tab-num">3</span> Flujo de Caja</button>
-    <button class="tab-btn" onclick="goTab(3)"><span class="tab-num">4</span> Resultados</button>
+<div class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="../index.html">MPL Solutions<span>Herramientas</span></a>
+    <a class="back-btn" href="../index.html">← Volver al portal</a>
   </div>
 </div>
 
+<div class="page-head">
+  <div>
+    <h1>Evaluador de proyectos de inversión</h1>
+    <p>VAN, TIR, payback y sensibilidad a partir de tus supuestos de inversión, ventas y costos.</p>
+  </div>
+  <div class="currency">
+    <span>Moneda</span>
+    <div class="toggle-row" id="moneda-toggle">
+      <button class="active" onclick="setMoneda('CLP', this)">CLP (millones)</button>
+      <button onclick="setMoneda('UF', this)">UF (miles)</button>
+    </div>
+  </div>
+</div>
+
+<nav class="tabs-nav">
+  <div class="tabs-nav-inner">
+    <button class="tab-btn active" onclick="goTab(0)">Supuestos</button>
+    <button class="tab-btn" onclick="goTab(1)">Ventas y costos</button>
+    <button class="tab-btn" onclick="goTab(2)">Flujo de caja</button>
+    <button class="tab-btn" onclick="goTab(3)">Resultados</button>
+  </div>
+</nav>
+
 <div class="main">
 
-<!-- ═══════════ TAB 1: PARÁMETROS ═══════════ -->
+<!-- ═══════════ TAB 1: SUPUESTOS ═══════════ -->
 <div class="tab-panel active" id="tab-0">
+  <div class="layout">
+  <div>
 
   <div class="card">
-    <div class="card-header"><h2>🏭 Identificación del proyecto</h2></div>
+    <div class="template-bar">
+      <label for="p-plantilla">Partir de una plantilla</label>
+      <select id="p-plantilla" onchange="aplicarPlantilla(this.value)"></select>
+      <span class="hint" id="p-plantilla-desc"></span>
+    </div>
+    <div class="card-header"><h2>Proyecto</h2></div>
     <div class="card-body">
       <div class="card-grid">
         <div class="field">
-          <label>Nombre del proyecto <span class="tip" tabindex="0" data-tip="Nombre descriptivo para identificar este proyecto en tus reportes. No afecta los cálculos.">?</span></label>
-          <input type="text" id="p-nombre" value="Nueva línea de producción madera"/>
+          <label>Nombre <span class="tip" tabindex="0" data-tip="Nombre descriptivo para identificar este proyecto en tus reportes. No afecta los cálculos.">?</span></label>
+          <input type="text" id="p-nombre" placeholder="Ej: Ampliación de planta"/>
         </div>
         <div class="field">
-          <label>Tipo de proyecto <span class="tip" tabindex="0" data-tip="Clasificación referencial del proyecto. Ayuda a interpretar los resultados, pero no afecta los cálculos.">?</span></label>
+          <label>Tipo <span class="tip" tabindex="0" data-tip="Clasificación referencial del proyecto. No afecta los cálculos.">?</span></label>
           <select id="p-tipo">
-            <option>Nueva línea de producción</option>
-            <option>Compra de maquinaria</option>
             <option>Nuevo negocio</option>
-            <option>Expansión</option>
+            <option>Expansión de capacidad</option>
+            <option>Compra de equipamiento</option>
+            <option>Reemplazo de activos</option>
+            <option>Desarrollo tecnológico</option>
+            <option>Inmueble o infraestructura</option>
             <option>Otro</option>
           </select>
         </div>
         <div class="field">
           <label>Horizonte de evaluación <span class="tip" tabindex="0" data-tip="Cantidad de años que se proyectará el flujo de caja. Debe cubrir el periodo relevante del proyecto (1 a 10 años).">?</span></label>
-          <div style="display:flex;align-items:center;gap:12px;margin-top:4px">
-            <input type="range" id="p-anos" min="1" max="10" value="5"
-                   oninput="onAnosChange()" style="flex:1;accent-color:var(--gold)"/>
-            <span id="p-anos-label"
-                  style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;
-                         color:var(--gold);min-width:68px">5 años</span>
+          <div class="range-row">
+            <input type="range" id="p-anos" min="1" max="10" value="5" oninput="onAnosChange()"/>
+            <output id="p-anos-label">5 años</output>
           </div>
         </div>
       </div>
@@ -92,85 +86,65 @@
 
   <div class="card">
     <div class="card-header">
-      <h2>🏗️ Activos del proyecto</h2>
+      <h2>Activos a adquirir</h2>
       <button class="btn-sm" onclick="addActivo()">+ Agregar activo</button>
     </div>
     <div class="card-body">
-      <p class="hint" style="margin-bottom:16px">Ingresa cada activo a adquirir. La inversión inicial, depreciaciones y valor residual se calculan automáticamente.</p>
+      <p class="hint" style="margin:0 0 14px">La inversión inicial, la depreciación y el valor residual se calculan a partir de cada activo.</p>
       <div id="activos-list"></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:16px">
-        <div style="padding:14px 16px;background:var(--navy);border-radius:var(--radius-sm)">
-          <div style="font-size:0.68rem;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px">Inversión total</div>
-          <div id="activos-inv-total" style="font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--white)">—</div>
-          <div style="font-size:0.7rem;color:var(--gray);margin-top:2px">Suma valores de compra</div>
-        </div>
-        <div style="padding:14px 16px;background:var(--navy);border-radius:var(--radius-sm)">
-          <div style="font-size:0.68rem;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px">Valor residual total</div>
-          <div id="activos-resid-total" style="font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--white)">—</div>
-          <div style="font-size:0.7rem;color:var(--gray);margin-top:2px">Se recupera al fin del proyecto</div>
-        </div>
-        <div style="padding:14px 16px;background:var(--navy);border-radius:var(--radius-sm)">
-          <div style="font-size:0.68rem;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px">Dep. total año 1</div>
-          <div id="activos-dep-total" style="font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--white)">—</div>
-          <div style="font-size:0.7rem;color:var(--gray);margin-top:2px">Varía según vida útil de cada activo</div>
-        </div>
-      </div>
     </div>
   </div>
 
   <div class="card">
     <div class="card-header">
-      <h2>🏦 Financiamiento</h2>
+      <h2>Financiamiento</h2>
       <div class="toggle-row" id="financ-toggle">
-        <button class="active" onclick="setFinanc('propio', this)">Solo capital propio</button>
+        <button class="active" onclick="setFinanc('propio', this)">Capital propio</button>
         <button onclick="setFinanc('mixto', this)">Con préstamo</button>
       </div>
     </div>
     <div class="card-body">
       <div id="financ-propio-msg">
-        <p style="font-size:0.85rem;color:var(--gray);font-weight:300">
-          El proyecto se financia 100% con capital propio. No se incluyen pagos de deuda en el flujo de caja.
-        </p>
+        <p class="hint" style="margin:0">El proyecto se financia 100% con capital propio. No se incluyen pagos de deuda en el flujo de caja.</p>
       </div>
       <div id="financ-mixto-box" class="hidden">
         <div class="field-row-3">
           <div class="field">
             <label>Monto del préstamo <span class="munit">MM$</span> <span class="tip" tabindex="0" data-tip="Monto de deuda que financia parte de la inversión inicial. Reduce el capital propio aportado en el Año 0.">?</span></label>
-            <input type="number" id="f-monto" value="300" min="0" step="0.1" oninput="calcFinanc()"/>
+            <input type="number" id="f-monto" value="0" min="0" step="0.1" oninput="calcFinanc()"/>
           </div>
           <div class="field">
-            <label>Tasa anual del préstamo (%) <span class="tip" tabindex="0" data-tip="Tasa de interés anual del crédito. Se usa para calcular la cuota fija y el interés deducible de impuestos.">?</span></label>
+            <label>Tasa anual (%) <span class="tip" tabindex="0" data-tip="Tasa de interés anual del crédito. Se usa para calcular la cuota fija y el interés deducible de impuestos.">?</span></label>
             <input type="number" id="f-tasa" value="6.5" min="0" step="0.1" oninput="calcFinanc()"/>
           </div>
           <div class="field">
-            <label>Plazo del préstamo (años) <span class="tip" tabindex="0" data-tip="Número de años en que se paga el préstamo mediante cuotas anuales fijas (sistema francés).">?</span></label>
+            <label>Plazo (años) <span class="tip" tabindex="0" data-tip="Número de años en que se paga el préstamo mediante cuotas anuales fijas (sistema francés).">?</span></label>
             <input type="number" id="f-plazo" value="5" min="1" max="20" oninput="calcFinanc()"/>
           </div>
         </div>
-        <div style="display:flex;align-items:center;gap:16px;padding:14px 18px;background:var(--navy);border-radius:var(--radius-sm);margin-top:4px">
-          <span style="font-size:0.75rem;color:var(--gold);text-transform:uppercase;letter-spacing:0.05em;font-weight:600">Cuota anual fija (sistema francés)</span>
-          <span id="f-cuota-label" style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--white)">—</span>
+        <div class="calc-line">
+          <span>Cuota anual fija (sistema francés)</span>
+          <strong id="f-cuota-label">—</strong>
         </div>
       </div>
     </div>
   </div>
 
   <div class="card">
-    <div class="card-header"><h2>🔄 Capital de trabajo</h2></div>
+    <div class="card-header"><h2>Capital de trabajo</h2></div>
     <div class="card-body">
       <div class="field-row">
         <div class="field">
-          <label>Monto capital de trabajo <span class="munit">MM$</span> <span class="tip" tabindex="0" data-tip="Caja necesaria para operar (existencias, cuentas por cobrar, etc.) antes de generar ingresos. Se invierte en el Año 0.">?</span></label>
-          <input type="number" id="p-kt" value="30" min="0" step="0.1"/>
+          <label>Monto <span class="munit">MM$</span> <span class="tip" tabindex="0" data-tip="Caja necesaria para operar (existencias, cuentas por cobrar, etc.) antes de generar ingresos. Se invierte en el Año 0.">?</span></label>
+          <input type="number" id="p-kt" value="0" min="0" step="0.1"/>
           <p class="hint">Requerimiento inicial de caja operativa</p>
         </div>
         <div class="field">
-          <label>Recuperación al final del proyecto <span class="tip" tabindex="0" data-tip="Indica si el capital de trabajo se recupera como ingreso en el último año del horizonte de evaluación.">?</span></label>
-          <div class="toggle-row" id="kt-toggle" style="margin-top:6px">
-            <button class="active" onclick="setKTR('si', this)">Sí se recupera</button>
+          <label>Recuperación al final <span class="tip" tabindex="0" data-tip="Indica si el capital de trabajo se recupera como ingreso en el último año del horizonte de evaluación.">?</span></label>
+          <div class="toggle-row" id="kt-toggle">
+            <button class="active" onclick="setKTR('si', this)">Se recupera</button>
             <button onclick="setKTR('no', this)">No se recupera</button>
           </div>
-          <p class="hint">¿Se recupera el capital de trabajo al término?</p>
         </div>
       </div>
     </div>
@@ -178,7 +152,7 @@
 
   <div class="card">
     <div class="card-header">
-      <h2>📊 Tasa de descuento</h2>
+      <h2>Tasa de descuento e impuestos</h2>
       <div class="toggle-row" id="tasa-toggle">
         <button class="active" onclick="setTasaM('manual', this)">Manual</button>
         <button onclick="setTasaM('wacc', this)">Calcular WACC</button>
@@ -186,7 +160,7 @@
     </div>
     <div class="card-body">
       <div id="tasa-manual-box">
-        <div class="field" style="max-width:220px">
+        <div class="field field-narrow">
           <label>Tasa de descuento (%) <span class="tip" tabindex="0" data-tip="Tasa usada para descontar los flujos futuros y calcular el VAN. Refleja el costo de oportunidad del capital.">?</span></label>
           <input type="number" id="p-tasa" value="12" min="0" step="0.1"/>
         </div>
@@ -201,27 +175,42 @@
             <div class="field"><label>% Patrimonio <span class="tip" tabindex="0" data-tip="Proporción de la inversión financiada con capital propio (patrimonio).">?</span></label><input type="number" id="w-ppct" value="60" min="0" max="100" oninput="calcWACC()"/></div>
             <div class="field"><label>Costo patrimonio (%) <span class="tip" tabindex="0" data-tip="Rentabilidad exigida por los accionistas: el costo de oportunidad del capital propio.">?</span></label><input type="number" id="w-pcost" value="15" min="0" step="0.1" oninput="calcWACC()"/></div>
           </div>
-          <div class="field" style="max-width:200px">
-            <label>Tasa impuesto aplicada (%) <span class="tip" tabindex="0" data-tip="Tasa de impuesto usada para calcular el escudo tributario de la deuda dentro del WACC.">?</span></label>
+          <div class="field field-narrow">
+            <label>Tasa de impuesto en el WACC (%) <span class="tip" tabindex="0" data-tip="Tasa de impuesto usada para calcular el escudo tributario de la deuda dentro del WACC.">?</span></label>
             <input type="number" id="w-tax" value="27" min="0" oninput="calcWACC()"/>
           </div>
           <div class="wacc-result">
-            <span style="font-size:0.78rem;color:var(--gray);font-weight:500">WACC calculado</span>
+            <span>WACC calculado</span>
             <span class="wacc-val" id="wacc-val">—</span>
           </div>
         </div>
       </div>
       <hr class="section-sep"/>
-      <div class="field" style="max-width:220px">
-        <label>Tasa impuesto a la renta (%) <span class="tip" tabindex="0" data-tip="Tasa de impuesto corporativo aplicada sobre la utilidad antes de impuesto (EBT) en el flujo de caja.">?</span></label>
+      <div class="field field-narrow" style="margin-bottom:0">
+        <label>Impuesto a la renta (%) <span class="tip" tabindex="0" data-tip="Tasa de impuesto corporativo aplicada sobre la utilidad antes de impuesto (EBT) en el flujo de caja.">?</span></label>
         <input type="number" id="p-impuesto" value="27" min="0" step="0.1"/>
-        <p class="hint">Se usa para calcular el impuesto sobre EBT</p>
+        <p class="hint">Se aplica sobre el resultado antes de impuesto (EBT)</p>
       </div>
     </div>
   </div>
 
   <div class="nav-btn-row">
-    <button class="btn-primary" onclick="goTab(1)">Siguiente: Ventas y Costos →</button>
+    <button class="btn-primary" onclick="goTab(1)">Continuar: ventas y costos →</button>
+  </div>
+
+  </div>
+  <aside class="rail">
+    <div class="summary">
+      <h3>Resumen de inversión</h3>
+      <dl>
+        <div><dt>Inversión total</dt><dd id="activos-inv-total">—</dd><dd><small>Suma de valores de compra</small></dd></div>
+        <hr class="rule"/>
+        <div><dt>Valor residual total</dt><dd id="activos-resid-total">—</dd><dd><small>Se recupera al fin del proyecto</small></dd></div>
+        <hr class="rule"/>
+        <div><dt>Depreciación año 1</dt><dd id="activos-dep-total">—</dd><dd><small>Varía según la vida útil de cada activo</small></dd></div>
+      </dl>
+    </div>
+  </aside>
   </div>
 </div>
 
@@ -230,10 +219,11 @@
 
   <div class="card">
     <div class="card-header">
-      <h2>📈 Ingresos por ventas</h2>
+      <h2>Ingresos</h2>
       <button class="btn-sm" onclick="addVentaRow()">+ Línea de ingreso</button>
     </div>
     <div class="card-body">
+      <p class="hint" style="margin:0 0 12px">El año 1 es el valor base. Desde el año 2 puedes ingresar un % de variación sobre el año anterior o un valor fijo (botón % / #).</p>
       <div class="table-scroll">
         <table class="years-table">
           <thead id="v-thead"></thead>
@@ -247,7 +237,7 @@
 
   <div class="card">
     <div class="card-header">
-      <h2>📉 Costos operacionales</h2>
+      <h2>Costos operacionales</h2>
       <button class="btn-sm" onclick="addCostoRow()">+ Línea de costo</button>
     </div>
     <div class="card-body">
@@ -263,8 +253,8 @@
   </div>
 
   <div class="nav-btn-row" style="justify-content:space-between">
-    <button class="btn-sm" onclick="goTab(0)">← Parámetros</button>
-    <button class="btn-primary" onclick="buildFCF(); goTab(2)">Siguiente: Flujo de Caja →</button>
+    <button class="btn-sm" onclick="goTab(0)">← Supuestos</button>
+    <button class="btn-primary" onclick="buildFCF(); goTab(2)">Continuar: flujo de caja →</button>
   </div>
 </div>
 
@@ -273,10 +263,9 @@
 
   <div class="card">
     <div class="card-header">
-      <h2>💹 Estado de resultados y flujo de caja completo <span class="tip" tabindex="0" data-tip="Detalle año a año desde el resultado operacional (EBITDA, EBIT, EBT) hasta el Flujo de Caja Libre (FCL), incluyendo inversión, financiamiento y recuperaciones en Año 0 y año final.">?</span></h2>
+      <h2>Estado de resultados y flujo de caja <span class="tip" tabindex="0" data-tip="Detalle año a año desde el resultado operacional (EBITDA, EBIT, EBT) hasta el Flujo de Caja Libre (FCL), incluyendo inversión, financiamiento y recuperaciones en Año 0 y año final.">?</span></h2>
     </div>
     <div class="card-body">
-      <p class="hint" style="margin-bottom:12px">La columna "Concepto" queda fija al desplazar la tabla horizontalmente. Pasa el cursor sobre cada fila para ver su definición.</p>
       <div class="table-scroll">
         <table class="fcf-table" id="fcf-table"></table>
       </div>
@@ -285,7 +274,7 @@
 
   <div class="card">
     <div class="card-header">
-      <h2>📊 EBITDA · Flujo de Caja Neto · FCL Acumulado <span class="tip" tabindex="0" data-tip="EBITDA: rentabilidad operativa anual. Flujo de Caja Neto: caja generada tras impuestos y deuda. FCL Acumulado: suma progresiva del Flujo de Caja Libre desde el Año 0 — cuando cruza sobre cero marca el punto de recuperación (payback).">?</span></h2>
+      <h2>EBITDA, flujo neto y FCL acumulado <span class="tip" tabindex="0" data-tip="EBITDA: rentabilidad operativa anual. Flujo de Caja Neto: caja generada tras impuestos y deuda. FCL Acumulado: suma progresiva del Flujo de Caja Libre desde el Año 0; cuando cruza sobre cero marca el punto de recuperación (payback).">?</span></h2>
     </div>
     <div class="card-body">
       <div class="chart-wrap"><canvas id="chart-fcf"></canvas></div>
@@ -293,8 +282,8 @@
   </div>
 
   <div class="nav-btn-row" style="justify-content:space-between">
-    <button class="btn-sm" onclick="goTab(1)">← Ventas y Costos</button>
-    <button class="btn-primary" onclick="buildResults(); goTab(3)">Ver Resultados →</button>
+    <button class="btn-sm" onclick="goTab(1)">← Ventas y costos</button>
+    <button class="btn-primary" onclick="buildResults(); goTab(3)">Ver resultados →</button>
   </div>
 </div>
 
@@ -302,19 +291,15 @@
 <div class="tab-panel" id="tab-3">
 
   <div id="res-placeholder" class="card">
-    <div class="card-body" style="text-align:center;padding:52px">
-      <p style="font-size:2.5rem;margin-bottom:12px">📋</p>
-      <p style="color:var(--gray);font-size:0.9rem;margin-bottom:20px">
-        Completa los parámetros y avanza por las pestañas para generar el análisis.
-      </p>
-      <button class="btn-primary" onclick="buildFCF(); buildResults()">Calcular ahora →</button>
+    <div class="card-body" style="text-align:center;padding:48px 20px">
+      <p class="hint" style="margin:0 0 16px;font-size:14px">Completa los supuestos para generar el análisis.</p>
+      <button class="btn-primary" onclick="buildFCF(); buildResults()">Calcular</button>
     </div>
   </div>
 
   <div id="res-content" class="hidden">
 
     <div class="viability" id="viability-bar">
-      <div class="v-icon" id="v-icon">📋</div>
       <div class="v-text">
         <h3><span id="v-titulo">—</span> <span class="tip" tabindex="0" data-tip="Viable: VAN > 0 y TIR > tasa exigida. Revisar: VAN negativo pero dentro de un 15% de la inversión inicial. No viable: fuera de ambos criterios.">?</span></h3>
         <p id="v-desc">—</p>
@@ -323,7 +308,7 @@
     </div>
 
     <div class="metrics-section">
-      <p class="metrics-caption">Rentabilidad y recuperación de la inversión</p>
+      <p class="metrics-caption">Rentabilidad y recuperación</p>
       <div class="metrics-grid" id="kpi-grid-main"></div>
     </div>
     <div class="metrics-section">
@@ -333,24 +318,19 @@
 
     <div class="card">
       <div class="card-header">
-        <h2>🎯 Análisis de sensibilidad <span class="tip" tabindex="0" data-tip="Prueba cuánto cambian el VAN, la TIR y el Payback si una variable clave se mueve ±X%, manteniendo todo lo demás constante (análisis univariante). Sirve para identificar qué supuestos son más riesgosos para la viabilidad del proyecto.">?</span></h2>
-        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-          <span class="tip" tabindex="0" data-tip="Variable que se hará variar en cada escenario; las demás se mantienen en su valor base.">?</span>
-          <select id="sens-var" onchange="renderSens()"
-                  style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;
-                         font-family:'DM Sans',sans-serif;font-size:0.82rem;color:var(--navy)">
-            <option value="ingresos">Variable: Ingresos</option>
-            <option value="costos">Variable: Costos operacionales</option>
-            <option value="inversion">Variable: Inversión inicial</option>
-            <option value="tasa">Variable: Tasa de descuento</option>
+        <h2>Análisis de sensibilidad <span class="tip" tabindex="0" data-tip="Prueba cuánto cambian el VAN, la TIR y el Payback si una variable clave se mueve ±X%, manteniendo todo lo demás constante (análisis univariante). Sirve para identificar qué supuestos son más riesgosos para la viabilidad del proyecto.">?</span></h2>
+        <div class="sens-controls">
+          <select id="sens-var" onchange="renderSens()" aria-label="Variable a modificar">
+            <option value="ingresos">Ingresos</option>
+            <option value="costos">Costos operacionales</option>
+            <option value="inversion">Inversión inicial</option>
+            <option value="tasa">Tasa de descuento</option>
           </select>
-          <select id="sens-rango" onchange="renderSens()"
-                  style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;
-                         font-family:'DM Sans',sans-serif;font-size:0.82rem;color:var(--navy)">
-            <option value="10">Rango ±10%</option>
-            <option value="20" selected>Rango ±20%</option>
-            <option value="30">Rango ±30%</option>
-            <option value="50">Rango ±50%</option>
+          <select id="sens-rango" onchange="renderSens()" aria-label="Rango de variación">
+            <option value="10">±10%</option>
+            <option value="20" selected>±20%</option>
+            <option value="30">±30%</option>
+            <option value="50">±50%</option>
           </select>
         </div>
       </div>
@@ -361,9 +341,9 @@
               <tr>
                 <th>Variación</th>
                 <th>VAN <span class="tip" tabindex="0" data-tip="Valor Actual Neto bajo este escenario. La barra visualiza su magnitud relativa a los demás escenarios.">?</span></th>
-                <th>Δ VAN vs Base <span class="tip" tabindex="0" data-tip="Variación porcentual del VAN de este escenario respecto al caso base (0%). Mide la sensibilidad (elasticidad) del VAN ante esta variable.">?</span></th>
+                <th>Δ VAN vs base <span class="tip" tabindex="0" data-tip="Variación porcentual del VAN de este escenario respecto al caso base (0%). Mide la sensibilidad (elasticidad) del VAN ante esta variable.">?</span></th>
                 <th>TIR <span class="tip" tabindex="0" data-tip="La TIR depende solo de los flujos de caja, no de la tasa de descuento: por eso no cambia al variar 'Tasa de descuento'.">?</span></th>
-                <th>Payback simple <span class="tip" tabindex="0" data-tip="Años para recuperar la inversión sin descontar los flujos. No varía al cambiar la tasa de descuento.">?</span></th>
+                <th>Payback <span class="tip" tabindex="0" data-tip="Años para recuperar la inversión sin descontar los flujos. No varía al cambiar la tasa de descuento.">?</span></th>
                 <th>Viabilidad</th>
               </tr>
             </thead>
@@ -377,7 +357,7 @@
   </div>
 
   <div style="margin-top:12px">
-    <button class="btn-sm" onclick="goTab(2)">← Flujo de Caja</button>
+    <button class="btn-sm" onclick="goTab(2)">← Flujo de caja</button>
   </div>
 </div>
 
@@ -389,6 +369,7 @@
 <script src="js/ventas.js"></script>
 <script src="js/flujo.js"></script>
 <script src="js/resultados.js"></script>
+<script src="js/plantillas.js"></script>
 <script>
   const _tabInit = { 0: false, 1: false, 2: false, 3: false };
 
@@ -420,7 +401,7 @@
   }
 
   document.addEventListener('DOMContentLoaded', function () {
-    initParametros();
+    initPlantillas();
     _tabInit[0] = true;
   });
 </script>

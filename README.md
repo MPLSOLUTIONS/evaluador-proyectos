@@ -6,7 +6,7 @@
 [![Sin backend](https://img.shields.io/badge/Backend-Ninguno-lightgrey)](.)
 [![Gratis](https://img.shields.io/badge/Costo-Gratuito-gold)](.)
 
-Herramienta de evaluación financiera de proyectos de inversión desarrollada para el sector maderero y empresarial. Funciona 100% en el navegador, sin servidores ni bases de datos.
+Herramienta de evaluación financiera de proyectos de inversión, independiente del rubro: incluye plantillas de partida (manufactura, comercio, servicios, tecnología, inmobiliario, agroindustria) o puedes comenzar en blanco. Funciona 100% en el navegador, sin servidores ni bases de datos.
 
 ---
 
@@ -19,7 +19,7 @@ Herramienta de evaluación financiera de proyectos de inversión desarrollada pa
 ## ✨ Funcionalidades
 
 ### 📋 Pestaña 1 — Parámetros iniciales
-- Nombre y tipo de proyecto (nueva línea, maquinaria, nuevo negocio, etc.)
+- Plantilla de partida por rubro, nombre y tipo de proyecto
 - **Horizonte de evaluación**: slider ajustable de 1 a 10 años
 - Inversión inicial y valor residual de activos
 - **Financiamiento**: capital propio o mixto con préstamo (sistema francés, cuota fija)
@@ -68,6 +68,7 @@ evaluador-proyectos/
 ├── js/
 │   ├── estado.js           ← Estado global, utilidades (fmt, TIR, tabs)
 │   ├── parametros.js       ← Lógica pestaña 1 (WACC, depreciaciones, financiamiento)
+│   ├── plantillas.js       ← Plantillas de partida por rubro
 │   ├── ventas.js           ← Lógica pestaña 2 (tablas, gráficos, % de aumento)
 │   ├── flujo.js            ← Construcción del FCF con Año 0
 │   └── resultados.js       ← KPIs, semáforo y análisis de sensibilidad
@@ -84,7 +85,7 @@ evaluador-proyectos/
 | HTML5 / CSS3 | Estructura y diseño |
 | JavaScript (vanilla) | Lógica financiera y UI |
 | [Chart.js 4.4](https://www.chartjs.org/) | Gráficos interactivos |
-| Google Fonts | Tipografías (Playfair Display, DM Sans) |
+| Google Fonts | Tipografía (Inter) |
 | GitHub Pages | Hosting gratuito |
 
 Sin frameworks, sin npm, sin build process. Abre `index.html` y funciona.

@@ -82,7 +82,8 @@ function buildResults() {
   const viable  = van > 0 && tir > tasa;
   const revisar = !viable && van > -(inv + kt) * 0.15;
 
-  document.getElementById('v-icon').textContent = viable ? '✅' : revisar ? '⚠️' : '❌';
+  document.getElementById('viability-bar').className =
+    'viability ' + (viable ? 'is-viable' : revisar ? 'is-revisar' : 'is-noviable');
   document.getElementById('v-titulo').textContent = viable
     ? 'Proyecto viable'
     : revisar ? 'Revisar supuestos' : 'Proyecto no recomendado';
@@ -167,12 +168,13 @@ function renderSens() {
     const delta    = baseVan !== 0 ? ((vanM - baseVan) / Math.abs(baseVan)) * 100 : 0;
     const barPct   = Math.round((Math.abs(vanM) / maxAbsVan) * 100);
     const barColor = vanM >= 0 ? 'var(--green)' : 'var(--red)';
+    const vanClass = vanM >= 0 ? 'van-pos' : 'van-neg';
 
     return `<tr class="${isBase ? 'base-row' : ''}">
       <td>${pct === 0 ? 'Base (sin variación)' : (pct > 0 ? '+' : '') + pct + '%'}</td>
       <td>
         <div class="van-cell">
-          <span style="color:${vanM >= 0 ? 'var(--green)' : 'var(--red)'}">${fmt(vanM)}</span>
+          <span class="${vanClass}">${fmt(vanM)}</span>
           <span class="van-bar-track"><span class="van-bar-fill" style="width:${barPct}%;background:${barColor}"></span></span>
         </div>
       </td>

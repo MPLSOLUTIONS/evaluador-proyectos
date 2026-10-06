@@ -24,14 +24,14 @@ function calcValsFromPcts(r) {
 /* ── Cabecera ── */
 function buildYearsHeader(theadId) {
   const thead = document.getElementById(theadId);
-  const col0 = `<th style="background:rgba(201,168,76,0.15);color:var(--gold-light)">Año 1<br><small style="font-weight:400;font-size:0.65rem;opacity:0.8">Valor base</small></th>`;
+  const col0 = `<th class="col-base">Año 1<small>Valor base</small></th>`;
   const cols = Array.from({ length: Estado.anos - 1 }, (_, i) =>
-    `<th>Año ${i + 2}<br><small style="font-weight:400;font-size:0.65rem">% o valor</small></th>`
+    `<th>Año ${i + 2}<small>% o valor</small></th>`
   ).join('');
   thead.innerHTML = `<tr>
-    <th style="text-align:left;min-width:170px">Concepto</th>
+    <th>Concepto</th>
     ${Estado.anos >= 1 ? col0 : ''}${cols}
-    <th>Total acum.</th><th></th>
+    <th>Total</th><th></th>
   </tr>`;
 }
 
@@ -41,13 +41,11 @@ function makeRow(prefix, ri) {
   const r = rows[ri];
   const computed = calcValsFromPcts(r);
 
-  const nameTd = `<td><input type="text" value="${r.nm}"
-    style="width:150px;background:var(--surface2);text-align:left;font-weight:500"
+  const nameTd = `<td><input type="text" class="row-name" value="${r.nm}" aria-label="Concepto"
     oninput="updateRowName('${prefix}',${ri},this.value)"/></td>`;
 
-  const year1Td = Estado.anos >= 1 ? `<td style="background:rgba(201,168,76,0.06)">
+  const year1Td = Estado.anos >= 1 ? `<td class="col-base">
     <input type="number" value="${(r.base||0).toFixed(2)}" min="0" step="0.1"
-      style="border-color:rgba(201,168,76,0.4)"
       oninput="updateBase('${prefix}',${ri},+this.value)"/>
     </td>` : '';
 
@@ -56,30 +54,21 @@ function makeRow(prefix, ri) {
     const esPct = r.modo[i] === 'pct';
     const inputVal = esPct ? (r.pcts[i] || 5) : (computed[i] || 0);
     yearsTd += `<td id="${prefix}-cell-${ri}-${i}">
-      <div style="display:flex;gap:3px;align-items:center">
+      <div class="cell-edit">
         <input type="number" id="${prefix}-inp-${ri}-${i}"
+          class="${esPct ? 'is-pct' : ''}"
           value="${Number(inputVal).toFixed(esPct?1:2)}"
           step="0.1" min="${esPct?-100:0}"
-          style="min-width:62px;${esPct?'background:#eef4ff;border-color:#6b9fd4':''}"
           oninput="updateYearVal('${prefix}',${ri},${i},+this.value)"/>
-        <button onclick="toggleModo('${prefix}',${ri},${i})"
-          title="Cambiar entre % y valor"
-          style="padding:3px 7px;font-size:0.72rem;border:1px solid var(--border);border-radius:4px;
-                 cursor:pointer;background:${esPct?'#ddeaff':'var(--surface2)'};
-                 color:${esPct?'#1a4a8a':'var(--gray)'};font-weight:700;
-                 font-family:'DM Sans',sans-serif;white-space:nowrap">
-          ${esPct?'%':'#'}
-        </button>
+        <button class="mode-btn ${esPct ? 'is-pct' : ''}" onclick="toggleModo('${prefix}',${ri},${i})"
+          title="Cambiar entre % y valor">${esPct?'%':'#'}</button>
       </div>
-      <div id="${prefix}-calc-${ri}-${i}"
-           style="font-size:0.68rem;color:var(--gray);text-align:right;margin-top:2px">
-        = ${fmt(computed[i])}
-      </div>
+      <div class="cell-calc" id="${prefix}-calc-${ri}-${i}">= ${fmt(computed[i])}</div>
     </td>`;
   }
 
-  const totalTd = `<td id="${prefix}-rt-${ri}" style="font-weight:700;text-align:right;padding:6px 10px">—</td>`;
-  const deleteTd = `<td><button class="btn-sm btn-danger" onclick="removeRow('${prefix}',${ri})">✕</button></td>`;
+  const totalTd = `<td class="row-total" id="${prefix}-rt-${ri}">—</td>`;
+  const deleteTd = `<td><button class="btn-sm btn-danger" onclick="removeRow('${prefix}',${ri})" aria-label="Quitar línea">✕</button></td>`;
 
   const tr = document.createElement('tr');
   tr.innerHTML = nameTd + year1Td + yearsTd + totalTd + deleteTd;
@@ -179,8 +168,7 @@ function updateChartVentas(data) {
   if (!ctx) return;
   chartVentas = new Chart(ctx, { type: 'bar', data: { labels,
     datasets: [{ label: 'Ingresos', data: data.slice(0, Estado.anos),
-      backgroundColor: 'rgba(201,168,76,0.25)', borderColor: 'rgba(201,168,76,0.9)',
-      borderWidth: 2, borderRadius: 5 }]
+      backgroundColor: 'rgba(47,93,228,0.85)', borderRadius: 3, maxBarThickness: 44 }]
   }, options: chartOptions() });
 }
 
@@ -195,16 +183,15 @@ function updateChartCostos(data) {
   if (!ctx) return;
   chartCostos = new Chart(ctx, { type: 'bar', data: { labels,
     datasets: [{ label: 'Costos', data: data.slice(0, Estado.anos),
-      backgroundColor: 'rgba(228,75,74,0.18)', borderColor: 'rgba(228,75,74,0.85)',
-      borderWidth: 2, borderRadius: 5 }]
+      backgroundColor: 'rgba(106,114,128,0.7)', borderRadius: 3, maxBarThickness: 44 }]
   }, options: chartOptions() });
 }
 
 function chartOptions() {
   return { responsive: true, maintainAspectRatio: false,
     plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => fmt(c.raw) } } },
-    scales: { y: { ticks: { callback: v => fmt(v) }, grid: { color: 'rgba(0,0,0,0.05)' } },
-              x: { grid: { display: false } } } };
+    scales: { y: { ticks: { callback: v => fmt(v), color: '#6a7280' }, grid: { color: '#eceef2' }, border: { display: false } },
+              x: { ticks: { color: '#6a7280' }, grid: { display: false } } } };
 }
 
 /* ── Render completo ── */
@@ -218,7 +205,7 @@ function renderVentas() {
   buildYearsHeader('v-thead');
   const tb = document.getElementById('v-tbody'); tb.innerHTML = '';
   if (!Estado.ventaRows.length)
-    Estado.ventaRows = [newRow('Ventas producto principal', 80, 5)];
+    Estado.ventaRows = [newRow('Ingreso 1', 0, 5)];
   Estado.ventaRows.forEach((_, ri) => tb.appendChild(makeRow('v', ri)));
   buildTotalRow('v-tfoot', 'v');
   recalcTotals('v');
@@ -228,7 +215,7 @@ function renderCostos() {
   buildYearsHeader('c-thead');
   const tb = document.getElementById('c-tbody'); tb.innerHTML = '';
   if (!Estado.costoRows.length)
-    Estado.costoRows = [newRow('Costo de ventas', 48, 5), newRow('Gastos operacionales', 12, 3)];
+    Estado.costoRows = [newRow('Costo 1', 0, 5)];
   Estado.costoRows.forEach((_, ri) => tb.appendChild(makeRow('c', ri)));
   buildTotalRow('c-tfoot', 'c');
   recalcTotals('c');
@@ -237,10 +224,10 @@ function renderCostos() {
 function buildTotalRow(tfootId, prefix) {
   const tfoot = document.getElementById(tfootId);
   const cols = Array.from({ length: Estado.anos }, () =>
-    `<td style="font-weight:700;text-align:right;padding:7px 10px">—</td>`).join('');
+    `<td>—</td>`).join('');
   tfoot.innerHTML = `<tr class="total-row" id="${prefix}-total-row">
-    <td>TOTAL</td>${cols}
-    <td style="font-weight:700;text-align:right;padding:7px 10px">—</td><td></td>
+    <td>Total</td>${cols}
+    <td>—</td><td></td>
   </tr>`;
 }
 
