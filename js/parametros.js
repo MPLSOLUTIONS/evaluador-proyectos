@@ -9,7 +9,7 @@
 /* ── Moneda ── */
 function setMoneda(m, btn) {
   Estado.moneda = m;
-  document.querySelectorAll('.hero-moneda button').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('#moneda-toggle button').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   refreshUnits();
   recalcActivos();
@@ -106,17 +106,19 @@ function setKTR(v, btn) {
 
 let activoCnt = 0;
 
+const TIPO_ACTIVO_DEFAULT = 'Otro (definir)';
 const TIPOS_ACTIVO = {
-  'Maquinaria industrial':  { vida: 10, residPct: 10 },
-  'Vehículos / equipos':    { vida: 5,  residPct: 15 },
-  'Infraestructura':        { vida: 25, residPct: 20 },
-  'Equipos TI':             { vida: 3,  residPct: 5  },
-  'Manual (definir)':       { vida: 10, residPct: 0  },
+  'Maquinaria y equipos':        { vida: 10, residPct: 10 },
+  'Vehículos':                   { vida: 5,  residPct: 15 },
+  'Edificios e infraestructura': { vida: 25, residPct: 20 },
+  'Tecnología y software':       { vida: 4,  residPct: 0  },
+  'Mobiliario y habilitación':   { vida: 8,  residPct: 5  },
+  [TIPO_ACTIVO_DEFAULT]:         { vida: 10, residPct: 0  },
 };
 
-function addActivo(nm = 'Maquinaria industrial', val = 300, resid = null, vida = null) {
+function addActivo(nm = 'Nuevo activo', val = 0, resid = null, vida = null, tipoNm = TIPO_ACTIVO_DEFAULT) {
   const id = ++activoCnt;
-  const tipo = TIPOS_ACTIVO[nm] || TIPOS_ACTIVO['Manual (definir)'];
+  const tipo = TIPOS_ACTIVO[tipoNm] || TIPOS_ACTIVO[TIPO_ACTIVO_DEFAULT];
   const vidaDefault = vida ?? tipo.vida;
   const residDefault = resid ?? +(val * tipo.residPct / 100).toFixed(2);
 
@@ -126,40 +128,38 @@ function addActivo(nm = 'Maquinaria industrial', val = 300, resid = null, vida =
   div.id = 'activo-' + id;
 
   const opts = Object.keys(TIPOS_ACTIVO).map(k =>
-    `<option ${k === nm ? 'selected' : ''}>${k}</option>`
+    `<option ${k === tipoNm ? 'selected' : ''}>${k}</option>`
   ).join('');
 
   div.innerHTML = `
-    <div style="grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-      <input type="text" id="activo-nm-${id}" value="${nm}"
-        style="font-weight:600;font-size:0.88rem;border:none;background:transparent;
-               color:var(--navy);font-family:'DM Sans',sans-serif;width:100%"
+    <div class="activo-head">
+      <input type="text" id="activo-nm-${id}" value="${nm}" aria-label="Nombre del activo"
         oninput="recalcActivos()"/>
-      <button class="btn-sm btn-danger" onclick="removeActivo(${id})" style="margin-left:8px;flex-shrink:0">✕</button>
+      <button class="btn-sm btn-danger" onclick="removeActivo(${id})" title="Quitar activo" aria-label="Quitar activo">✕</button>
     </div>
 
-    <div class="field" style="margin:0">
-      <label>Tipo de activo <span class="tip" tabindex="0" data-tip="Al elegir una categoría se sugieren automáticamente vida útil y valor residual. Usa 'Manual' para definirlos tú mismo.">?</span></label>
+    <div class="field">
+      <label>Categoría <span class="tip" tabindex="0" data-tip="Al elegir una categoría se sugieren automáticamente vida útil y valor residual. Puedes modificarlos después.">?</span></label>
       <select id="activo-tipo-${id}" onchange="onTipoChange(${id})">
         ${opts}
       </select>
     </div>
 
-    <div class="field" style="margin:0">
+    <div class="field">
       <label>Valor de compra <span class="munit">${unit()}</span> <span class="tip" tabindex="0" data-tip="Costo total de adquisición del activo. Se suma a la inversión inicial del proyecto (Año 0).">?</span></label>
       <input type="number" id="activo-val-${id}" class="activo-val"
         value="${val}" min="0" step="0.1"
         oninput="onValChange(${id})"/>
     </div>
 
-    <div class="field" style="margin:0">
+    <div class="field">
       <label>Vida útil (años) <span class="tip" tabindex="0" data-tip="Años durante los cuales se deprecia el activo. La depreciación anual = (Valor de compra − Valor residual) ÷ Vida útil.">?</span></label>
       <input type="number" id="activo-vida-${id}" class="activo-vida"
         value="${vidaDefault}" min="1" max="50"
         oninput="recalcActivos()"/>
     </div>
 
-    <div class="field" style="margin:0">
+    <div class="field">
       <label>Valor residual <span class="munit">${unit()}</span> <span class="tip" tabindex="0" data-tip="Valor estimado del activo al terminar su vida útil. Se recupera como ingreso al finalizar el proyecto.">?</span></label>
       <input type="number" id="activo-resid-${id}" class="activo-resid"
         value="${residDefault}" min="0" step="0.1"
@@ -167,11 +167,9 @@ function addActivo(nm = 'Maquinaria industrial', val = 300, resid = null, vida =
       <p class="hint" id="activo-resid-pct-${id}"></p>
     </div>
 
-    <div class="field" style="margin:0">
+    <div class="field">
       <label>Dep. anual <span class="tip" tabindex="0" data-tip="Depreciación anual calculada automáticamente: (Valor de compra − Valor residual) ÷ Vida útil.">?</span></label>
-      <div id="activo-dep-${id}"
-           style="padding:9px 12px;background:var(--surface2);border:1px solid var(--border);
-                  border-radius:var(--radius-sm);font-weight:600;font-size:0.85rem;color:var(--navy)">—</div>
+      <div class="readout" id="activo-dep-${id}">—</div>
       <p class="hint" id="activo-dep-anos-${id}"></p>
     </div>`;
 
@@ -182,7 +180,7 @@ function addActivo(nm = 'Maquinaria industrial', val = 300, resid = null, vida =
 /* ── Al cambiar tipo: actualizar vida útil y residual sugerido ── */
 function onTipoChange(id) {
   const tipoNm = document.getElementById('activo-tipo-' + id).value;
-  const tipo   = TIPOS_ACTIVO[tipoNm] || TIPOS_ACTIVO['Manual (definir)'];
+  const tipo   = TIPOS_ACTIVO[tipoNm] || TIPOS_ACTIVO[TIPO_ACTIVO_DEFAULT];
   const val    = +document.getElementById('activo-val-' + id).value || 0;
   document.getElementById('activo-vida-'  + id).value = tipo.vida;
   document.getElementById('activo-resid-' + id).value = (val * tipo.residPct / 100).toFixed(2);
@@ -192,7 +190,7 @@ function onTipoChange(id) {
 /* ── Al cambiar valor: recalcular residual sugerido ── */
 function onValChange(id) {
   const tipoNm = document.getElementById('activo-tipo-' + id).value;
-  const tipo   = TIPOS_ACTIVO[tipoNm] || TIPOS_ACTIVO['Manual (definir)'];
+  const tipo   = TIPOS_ACTIVO[tipoNm] || TIPOS_ACTIVO[TIPO_ACTIVO_DEFAULT];
   const val    = +document.getElementById('activo-val-' + id).value || 0;
   document.getElementById('activo-resid-' + id).value = (val * tipo.residPct / 100).toFixed(2);
   recalcActivos();
@@ -282,10 +280,3 @@ function getResidTotal() {
   return t;
 }
 
-/* ── Init ── */
-function initParametros() {
-  addActivo('Maquinaria industrial', 300, 30, 10);
-  addActivo('Infraestructura',       200, 40, 25);
-  calcFinanc();
-  calcWACC();
-}

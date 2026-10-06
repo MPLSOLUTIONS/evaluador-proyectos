@@ -220,8 +220,8 @@ function renderFCFChart(rows, anos, yr0FCL) {
           type: 'bar',
           label: 'EBITDA',
           data: ebitda,
-          backgroundColor: 'rgba(201,168,76,0.25)',
-          borderColor: 'rgba(201,168,76,0.9)',
+          backgroundColor: 'rgba(47,93,228,0.18)',
+          borderColor: 'rgba(47,93,228,0.9)',
           borderWidth: 2,
           borderRadius: 4,
           yAxisID: 'y',
@@ -230,26 +230,26 @@ function renderFCFChart(rows, anos, yr0FCL) {
           type: 'line',
           label: 'Flujo de Caja Neto',
           data: fcn,
-          borderColor: 'rgba(26,107,48,0.9)',
-          backgroundColor: 'rgba(26,107,48,0.08)',
-          borderWidth: 2.5,
+          borderColor: 'rgba(27,31,39,0.9)',
+          backgroundColor: 'rgba(27,31,39,0.05)',
+          borderWidth: 2,
           tension: 0.3,
           fill: false,
-          pointRadius: 5,
-          pointBackgroundColor: 'rgba(26,107,48,0.9)',
+          pointRadius: 3,
+          pointBackgroundColor: 'rgba(27,31,39,0.9)',
           yAxisID: 'y',
         },
         {
           type: 'line',
           label: 'FCL Acumulado',
           data: fclAcum,
-          borderColor: 'rgba(100,149,237,0.9)',
-          backgroundColor: 'rgba(100,149,237,0.08)',
-          borderWidth: 2.5,
+          borderColor: 'rgba(21,128,61,0.9)',
+          backgroundColor: 'rgba(21,128,61,0.05)',
+          borderWidth: 2,
           tension: 0.4,
           fill: false,
-          pointRadius: 5,
-          pointBackgroundColor: 'rgba(100,149,237,0.9)',
+          pointRadius: 3,
+          pointBackgroundColor: 'rgba(21,128,61,0.9)',
           borderDash: [6, 3],
           yAxisID: 'y',
         },
@@ -261,7 +261,7 @@ function renderFCFChart(rows, anos, yr0FCL) {
       plugins: {
         legend: {
           position: 'top',
-          labels: { font: { family: 'DM Sans', size: 11 }, padding: 14 },
+          labels: { font: { family: 'Inter', size: 12 }, usePointStyle: true, boxWidth: 8, padding: 14 },
         },
         tooltip: {
           callbacks: {
@@ -271,7 +271,7 @@ function renderFCFChart(rows, anos, yr0FCL) {
               const fclItem = items.find(i => i.dataset.label === 'FCL Acumulado');
               if (fclItem && fclItem.raw >= 0) {
                 const prev = fclItem.dataset.data[fclItem.dataIndex - 1];
-                if (prev !== undefined && prev < 0) return ['✅ Punto de recuperación'];
+                if (prev !== undefined && prev < 0) return ['Punto de recuperación'];
               }
               return [];
             }
@@ -283,7 +283,7 @@ function renderFCFChart(rows, anos, yr0FCL) {
       scales: {
         y: {
           ticks: { callback: v => fmt(v) },
-          grid: { color: 'rgba(0,0,0,0.05)' },
+          grid: { color: '#eceef2' }, border: { display: false },
           // Línea en cero destacada
           afterDataLimits: axis => {
             if (axis.max < 0) axis.max = axis.max * 0.9;
